@@ -1,0 +1,48 @@
+# Dependencies
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+.next/
+out/
+build/
+dist/
+
+# Logs
+*.log
+logs/
+
+# Secrets
+*.pem
+*.key
+
+# Node
+node_modules/
+node_modules/
+frontend/node_modules/

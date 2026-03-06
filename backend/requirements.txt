@@ -1,0 +1,18 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic[email]
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+websockets
+python-dotenv
+bcrypt==4.0.1
+
+# Testing
+pytest
+pytest-cov
+pytest-asyncio
+httpx
+python-socketio[asgi]

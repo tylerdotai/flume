@@ -1,0 +1,135 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/lib/auth-context'
+import { getBoards, createBoard, deleteBoard } from '@/lib/api'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+interface Board {
+  id: number
+  name: string
+  description?: string
+  color: string
+}
+
+const BOARD_COLORS = [
+  '#FF6B35', // Ember (default)
+  '#EF4444', // Red
+  '#F97316', // Orange
+  '#EAB308', // Yellow
+  '#22C55E', // Green
+  '#3B82F6', // Blue
+  '#8B5CF6', // Violet
+  '#EC4899', // Pink
+  '#06B6D4', // Cyan
+  '#6B7280', // Gray
+]
+
+export default function BoardPage() {
+  const { user, token, logout, loading } = useAuth()
+  const [boards, setBoards] = useState<Board[]>([])
+  const [showCreate, setShowCreate] = useState(false)
+  const [newBoardName, setNewBoardName] = useState('')
+  const [newBoardColor, setNewBoardColor] = useState(BOARD_COLORS[0])
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !token) router.push('/login')
+  }, [loading, token, router])
+
+  useEffect(() => {
+    if (token) getBoards(token).then(setBoards).catch(console.error)
+  }, [token])
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token || !newBoardName.trim()) return
+    try {
+      const board = await createBoard(token, { name: newBoardName.trim(), color: newBoardColor })
+      setBoards([...boards, board])
+      setNewBoardName('')
+      setNewBoardColor(BOARD_COLORS[0])
+      setShowCreate(false)
+    } catch (err) { console.error(err) }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!token || !confirm('Delete this board?')) return
+    try {
+      await deleteBoard(token, id)
+      setBoards(boards.filter(b => b.id !== id))
+    } catch (err) { console.error(err) }
+  }
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
+
+  return (
+    <div className="min-h-screen p-8">
+      <header className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-cream">Your Boards</h1>
+          <p className="text-gray-500">Welcome back, {user?.username}</p>
+        </div>
+        <button onClick={logout} className="btn-ghost">Sign out</button>
+          <Link href="/webhooks" className="btn-ghost ml-2">Webhooks</Link>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <button onClick={() => setShowCreate(true)} className="card p-6 flex items-center justify-center min-h-[160px] border-dashed hover:border-ember">
+          <div className="text-center">
+            <div className="text-4xl text-ember mb-2">+</div>
+            <div className="text-gray-400">Create new board</div>
+          </div>
+        </button>
+
+        {boards.map((board) => (
+          <div key={board.id} className="card p-6 relative group">
+            <div className="absolute top-0 left-0 w-full h-2 rounded-t-xl" style={{ backgroundColor: board.color }} />
+            <h3 className="text-lg font-semibold text-cream mt-2">{board.name}</h3>
+            <div className="flex gap-2 mt-4">
+              <Link href={`/board/${board.id}`} className="btn-ember flex-1 text-center py-2">Open</Link>
+              <button onClick={() => handleDelete(board.id)} className="btn-ghost px-3 py-2 text-red-400">×</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showCreate && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <div className="card p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-cream mb-4">Create Board</h2>
+            <form onSubmit={handleCreate}>
+              <input
+                type="text"
+                value={newBoardName}
+                onChange={(e) => setNewBoardName(e.target.value)}
+                placeholder="Board name"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none mb-4"
+                autoFocus
+              />
+              <div className="mb-4">
+                <label className="block text-sm text-gray-400 mb-2">Board Color</label>
+                <div className="flex gap-2 flex-wrap">
+                  {BOARD_COLORS.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setNewBoardColor(color)}
+                      className={`w-8 h-8 rounded-full transition-transform ${newBoardColor === color ? 'ring-2 ring-white scale-110' : 'opacity-50 hover:opacity-100'}`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setShowCreate(false)} className="btn-ghost flex-1">Cancel</button>
+                <button type="submit" className="btn-ember flex-1">Create</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
