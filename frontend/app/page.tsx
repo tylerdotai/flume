@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: '#F9F7F2' }}>
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b">
+      <nav className="flex items-center justify-between px-6 py-4 sticky top-0 z-50" style={{ background: '#F9F7F2', borderBottom: '1px solid #E5E5E5' }}>
         <div className="flex items-center gap-2">
           <Link href="/">
             <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
