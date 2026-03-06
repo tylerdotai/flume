@@ -66,6 +66,7 @@ class Card(Base):
     labels = Column(String(500))  # JSON string of labels
     assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     due_date = Column(DateTime(timezone=True))
+    priority = Column(String(10), default="medium")  # low, medium, high
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

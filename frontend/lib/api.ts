@@ -91,7 +91,7 @@ export const createList = (token: string, boardId: number, data: { name: string;
 export const getCards = (token: string, listId: number) =>
   fetchApi<any[]>(`/api/v1/lists/${listId}/cards`, { token })
 
-export const createCard = (token: string, listId: number, data: { title: string; description?: string }) =>
+export const createCard = (token: string, listId: number, data: { title: string; description?: string; priority?: string }) =>
   fetchApi<any>(`/api/v1/lists/${listId}/cards`, {
     method: 'POST',
     token,

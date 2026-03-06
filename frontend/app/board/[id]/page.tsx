@@ -8,15 +8,36 @@ import { useRouter, useParams } from 'next/navigation'
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableCard } from '@/components/sortable-card'
+import ReactMarkdown from 'react-markdown'
 
 interface List { id: number; name: string; position: number }
-interface Card { id: number; title: string; description?: string; position: number; list_id: number; labels?: string; assignee_id?: number; due_date?: string }
+interface Card { id: number; title: string; description?: string; position: number; list_id: number; labels?: string; assignee_id?: number; due_date?: string; priority?: string }
 interface Comment { id: number; content: string; author_id: number; created_at: string }
 
 const LABEL_COLORS = [
   { name: 'Red', color: '#EF4444' }, { name: 'Orange', color: '#F97316' }, { name: 'Yellow', color: '#EAB308' },
   { name: 'Green', color: '#22C55E' }, { name: 'Blue', color: '#3B82F6' }, { name: 'Purple', color: '#A855F7' }, { name: 'Pink', color: '#EC4899' },
 ]
+
+const PRIORITIES = [
+  { name: 'High', color: '#EF4444', value: 'high' },
+  { name: 'Medium', color: '#EAB308', value: 'medium' },
+  { name: 'Low', color: '#22C55E', value: 'low' },
+]
+
+const TASK_TEMPLATE = `## What
+-
+
+## Why
+-
+
+## How
+- 
+
+## When
+- Start: 
+- End:
+`
 
 export default function BoardDetailPage() {
   const { user, token, loading: authLoading } = useAuth()
@@ -32,15 +53,18 @@ export default function BoardDetailPage() {
   const [newCardName, setNewCardName] = useState('')
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   
-  // Modal states
+  // Sidebar states
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [editDueDate, setEditDueDate] = useState('')
   const [editLabels, setEditLabels] = useState<string[]>([])
   const [editAssignee, setEditAssignee] = useState<number | null>(null)
+  const [editPriority, setEditPriority] = useState('medium')
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
+  const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
 
@@ -115,7 +139,7 @@ export default function BoardDetailPage() {
     e.preventDefault()
     if (!token || !newCardName.trim()) return
     try {
-      const card = await createCard(token, listId, { title: newCardName.trim() })
+      const card = await createCard(token, listId, { title: newCardName.trim(), description: TASK_TEMPLATE, priority: 'medium' })
       setCards(prev => ({ ...prev, [listId]: [...(prev[listId] || []), card] }))
       setNewCardName('')
       setShowAddCard(null)
@@ -158,10 +182,12 @@ export default function BoardDetailPage() {
   const openCardDetail = async (card: Card) => {
     setSelectedCard(card)
     setEditTitle(card.title)
-    setEditDescription(card.description || "")
+    setEditDescription(card.description || TASK_TEMPLATE)
     setEditDueDate(card.due_date ? card.due_date.split('T')[0] : '')
     setEditLabels(card.labels ? JSON.parse(card.labels) : [])
     setEditAssignee(card.assignee_id || null)
+    setEditPriority(card.priority || 'medium')
+    setSidebarOpen(true)
     // Load comments
     try {
       const data = await getComments(token!, card.id)
@@ -169,12 +195,24 @@ export default function BoardDetailPage() {
     } catch (err) { console.error(err) }
   }
 
+  const closeSidebar = () => {
+    setSidebarOpen(false)
+    setSelectedCard(null)
+  }
+
   const saveCardDetail = async () => {
     if (!token || !selectedCard) return
     try {
-      await updateCard(token, selectedCard.id, { title: editTitle, description: editDescription, due_date: editDueDate || null, labels: JSON.stringify(editLabels), assignee_id: editAssignee })
+      await updateCard(token, selectedCard.id, { 
+        title: editTitle, 
+        description: editDescription, 
+        due_date: editDueDate || null, 
+        labels: JSON.stringify(editLabels), 
+        assignee_id: editAssignee,
+        priority: editPriority 
+      })
       loadLists()
-      setSelectedCard(null)
+      closeSidebar()
     } catch (err) { console.error(err) }
   }
 
@@ -182,8 +220,12 @@ export default function BoardDetailPage() {
     if (!token || !selectedCard || !confirm('Delete this card?')) return
     try {
       await deleteCard(token, selectedCard.id)
-      setCards(prev => { const newState = { ...prev }; newState[selectedCard.list_id] = newState[selectedCard.list_id].filter(c => c.id !== selectedCard.id); return newState })
-      setSelectedCard(null)
+      setCards(prev => { 
+        const newState = { ...prev }
+        newState[selectedCard.list_id] = newState[selectedCard.list_id].filter(c => c.id !== selectedCard.id)
+        return newState 
+      })
+      closeSidebar()
     } catch (err) { console.error(err) }
   }
 
@@ -198,74 +240,236 @@ export default function BoardDetailPage() {
     } catch (err) { console.error(err) }
   }
 
+  const getPriorityColor = (p: string) => PRIORITIES.find(x => x.value === p)?.color || '#EAB308'
+
   if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen p-6 overflow-x-auto">
+      <div className="min-h-screen p-4 sm:p-6 overflow-x-auto">
         <header className="flex items-center gap-4 mb-6">
           <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-cream">← Back</button>
-          <h1 className="text-2xl font-bold text-cream">Board {boardId}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-cream">Board {boardId}</h1>
           <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
             {connected ? '● Live' : '○ Offline'}
           </span>
         </header>
+        
         <div className="flex gap-4 items-start">
           {lists.map((list) => (
             <div key={list.id} className="flex-shrink-0 w-72">
-              <div className="flex justify-between items-center mb-2 px-2"><h3 className="font-semibold text-cream">{list.name}</h3><span className="text-gray-500 text-sm">{cards[list.id]?.length || 0}</span></div>
+              <div className="flex justify-between items-center mb-2 px-2">
+                <h3 className="font-semibold text-cream">{list.name}</h3>
+                <span className="text-gray-500 text-sm">{cards[list.id]?.length || 0}</span>
+              </div>
               <SortableContext items={(cards[list.id] || []).map(c => c.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-2 mb-2 max-h-[60vh] overflow-y-auto">
-                  {cards[list.id]?.map((card) => <div key={card.id} onClick={() => openCardDetail(card)}><SortableCard id={card.id} title={card.title} description={card.description} /></div>)}
+                  {cards[list.id]?.map((card) => (
+                    <div key={card.id} onClick={() => openCardDetail(card)}>
+                      <SortableCard 
+                        id={card.id} 
+                        title={card.title} 
+                        description={card.description}
+                        priority={card.priority}
+                      />
+                    </div>
+                  ))}
                 </div>
               </SortableContext>
               {showAddCard === list.id ? (
                 <form onSubmit={(e) => handleCreateCard(list.id, e)} className="p-2">
-                  <input type="text" value={newCardName} onChange={(e) => setNewCardName(e.target.value)} placeholder="Card title" className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" autoFocus />
-                  <div className="flex gap-2 mt-2"><button type="submit" className="btn-ember py-1 px-3 text-sm">Add</button><button type="button" onClick={() => setShowAddCard(null)} className="btn-ghost py-1 px-3 text-sm">Cancel</button></div>
+                  <input 
+                    type="text" 
+                    value={newCardName} 
+                    onChange={(e) => setNewCardName(e.target.value)} 
+                    placeholder="Card title" 
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                    autoFocus 
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <button type="submit" className="btn-ember py-1 px-3 text-sm">Add</button>
+                    <button type="button" onClick={() => setShowAddCard(null)} className="btn-ghost py-1 px-3 text-sm">Cancel</button>
+                  </div>
                 </form>
-              ) : <button onClick={() => setShowAddCard(list.id)} className="w-full p-2 text-left text-gray-500 hover:text-ember text-sm">+ Add card</button>}
+              ) : (
+                <button onClick={() => setShowAddCard(list.id)} className="w-full p-2 text-left text-gray-500 hover:text-ember text-sm">
+                  + Add card
+                </button>
+              )}
             </div>
           ))}
           {showAddList ? (
-            <div className="flex-shrink-0 w-72"><form onSubmit={handleCreateList} className="card p-4"><input type="text" value={newListName} onChange={(e) => setNewListName(e.target.value)} placeholder="List name" className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none mb-2" autoFocus /><div className="flex gap-2"><button type="submit" className="btn-ember py-1 px-3 text-sm">Add</button><button type="button" onClick={() => setShowAddList(false)} className="btn-ghost py-1 px-3 text-sm">Cancel</button></div></form></div>
-          ) : <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-72 p-4 card border-dashed text-gray-400 hover:text-ember text-center">+ Add list</button>}
+            <div className="flex-shrink-0 w-72">
+              <form onSubmit={handleCreateList} className="card p-4">
+                <input 
+                  type="text" 
+                  value={newListName} 
+                  onChange={(e) => setNewListName(e.target.value)} 
+                  placeholder="List name" 
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none mb-2" 
+                  autoFocus 
+                />
+                <div className="flex gap-2">
+                  <button type="submit" className="btn-ember py-1 px-3 text-sm">Add</button>
+                  <button type="button" onClick={() => setShowAddList(false)} className="btn-ghost py-1 px-3 text-sm">Cancel</button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-72 p-4 card border-dashed text-gray-400 hover:text-ember text-center">
+              + Add list
+            </button>
+          )}
         </div>
       </div>
-      <DragOverlay>{activeCard ? <div className="card p-3 bg-gray-800 border-ember"><div className="text-cream">{activeCard.title}</div></div> : null}</DragOverlay>
+      <DragOverlay>
+        {activeCard ? (
+          <div className="card p-3 bg-gray-800 border-ember">
+            <div className="text-cream">{activeCard.title}</div>
+          </div>
+        ) : null}
+      </DragOverlay>
 
-      {/* Card Detail Modal */}
-      {selectedCard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={() => setSelectedCard(null)}>
-          <div className="card p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-4">
-              <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="text-xl font-bold bg-transparent text-cream border-b border-gray-800 focus:border-ember focus:outline-none flex-1" />
-              <button onClick={() => setSelectedCard(null)} className="text-gray-500 hover:text-cream ml-4">✕</button>
-            </div>
-            
-            <div className="mb-4"><label className="block text-sm text-gray-400 mb-1">Description</label><textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" placeholder="Add a description..." /></div>
-            
-            <div className="mb-4"><label className="block text-sm text-gray-400 mb-1">Due Date</label><input type="date" value={editDueDate} onChange={(e) => setEditDueDate(e.target.value)} className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" /></div>
-            
-            <div className="mb-4"><label className="block text-sm text-gray-400 mb-2">Labels</label><div className="flex gap-2 flex-wrap">{LABEL_COLORS.map(label => <button key={label.color} type="button" onClick={() => toggleLabel(label.color)} className={`w-8 h-8 rounded-full transition-transform ${editLabels.includes(label.color) ? 'scale-110 ring-2 ring-white' : 'opacity-50 hover:opacity-100'}`} style={{ backgroundColor: label.color }} title={label.name} />)}</div></div>
-
-            <div className="mb-4"><label className="block text-sm text-gray-400 mb-2">Assignee</label><select value={editAssignee || ''} onChange={(e) => setEditAssignee(e.target.value ? Number(e.target.value) : null)} className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"><option value="">Unassigned</option><option value={user?.id}>{user?.username}</option></select></div>
-
-            {/* Comments Section */}
-            <div className="mb-4 border-t border-gray-800 pt-4">
-              <label className="block text-sm text-gray-400 mb-2">Comments</label>
-              <div className="space-y-2 mb-2 max-h-32 overflow-y-auto">
-                {comments.map(comment => <div key={comment.id} className="text-sm text-cream bg-gray-900 p-2 rounded">{comment.content}</div>)}
+      {/* Sidebar */}
+      {sidebarOpen && selectedCard && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" onClick={closeSidebar}></div>
+          
+          {/* Sidebar panel */}
+          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 bg-gray-900 border-l border-gray-800 overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              {/* Header */}
+              <div className="flex justify-between items-start mb-4">
+                <input 
+                  type="text" 
+                  value={editTitle} 
+                  onChange={(e) => setEditTitle(e.target.value)} 
+                  className="text-lg sm:text-xl font-bold bg-transparent text-cream border-b border-gray-800 focus:border-ember focus:outline-none flex-1 mr-2" 
+                />
+                <button onClick={closeSidebar} className="text-gray-500 hover:text-cream">✕</button>
               </div>
-              <div className="flex gap-2">
-                <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add a comment..." className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" />
-                <button onClick={handleAddComment} className="btn-ember py-1 px-3 text-sm">Post</button>
+              
+              {/* Priority */}
+              <div className="mb-4">
+                <label className="block text-sm text-gray-400 mb-2">Priority</label>
+                <div className="flex gap-2">
+                  {PRIORITIES.map(p => (
+                    <button
+                      key={p.value}
+                      onClick={() => setEditPriority(p.value)}
+                      className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                        editPriority === p.value 
+                          ? 'text-black' 
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                      style={{ 
+                        backgroundColor: editPriority === p.value ? p.color : undefined 
+                      }}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+              
+              {/* Description with Markdown */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm text-gray-400">Description</label>
+                  <button 
+                    onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
+                    className="text-xs text-ember hover:text-ember-light"
+                  >
+                    {showMarkdownPreview ? 'Edit' : 'Preview'}
+                  </button>
+                </div>
+                {showMarkdownPreview ? (
+                  <div className="prose prose-invert prose-sm max-w-none bg-gray-800 p-3 rounded-lg text-cream">
+                    <ReactMarkdown>{editDescription}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <textarea 
+                    value={editDescription} 
+                    onChange={(e) => setEditDescription(e.target.value)} 
+                    rows={12} 
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none font-mono"
+                    placeholder="## What&#10;-&#10;&#10;## Why&#10;-&#10;&#10;## How&#10;- &#10;&#10;## When&#10;- Start:&#10;- End:"
+                  />
+                )}
+              </div>
+              
+              {/* Due Date */}
+              <div className="mb-4">
+                <label className="block text-sm text-gray-400 mb-1">Due Date</label>
+                <input 
+                  type="date" 
+                  value={editDueDate} 
+                  onChange={(e) => setEditDueDate(e.target.value)} 
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                />
+              </div>
+              
+              {/* Labels */}
+              <div className="mb-4">
+                <label className="block text-sm text-gray-400 mb-2">Labels</label>
+                <div className="flex gap-2 flex-wrap">
+                  {LABEL_COLORS.map(label => (
+                    <button
+                      key={label.color}
+                      type="button"
+                      onClick={() => toggleLabel(label.color)}
+                      className={`w-8 h-8 rounded-full transition-transform ${editLabels.includes(label.color) ? 'scale-110 ring-2 ring-white' : 'opacity-50 hover:opacity-100'}`}
+                      style={{ backgroundColor: label.color }}
+                      title={label.name}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            <div className="flex justify-between">
-              <button onClick={handleDeleteCard} className="text-red-400 hover:text-red-300 text-sm">Delete card</button>
-              <div className="flex gap-2"><button onClick={() => setSelectedCard(null)} className="btn-ghost">Cancel</button><button onClick={saveCardDetail} className="btn-ember">Save</button></div>
+              {/* Assignee */}
+              <div className="mb-4">
+                <label className="block text-sm text-gray-400 mb-1">Assignee</label>
+                <select 
+                  value={editAssignee || ''} 
+                  onChange={(e) => setEditAssignee(e.target.value ? Number(e.target.value) : null)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"
+                >
+                  <option value="">Unassigned</option>
+                  <option value={user?.id}>{user?.username}</option>
+                </select>
+              </div>
+
+              {/* Comments Section */}
+              <div className="mb-4 border-t border-gray-800 pt-4">
+                <label className="block text-sm text-gray-400 mb-2">Comments</label>
+                <div className="space-y-2 mb-2 max-h-40 overflow-y-auto">
+                  {comments.map(comment => (
+                    <div key={comment.id} className="text-sm text-cream bg-gray-800 p-2 rounded">
+                      {comment.content}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={newComment} 
+                    onChange={(e) => setNewComment(e.target.value)} 
+                    placeholder="Add a comment..." 
+                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                  />
+                  <button onClick={handleAddComment} className="btn-ember py-1 px-3 text-sm">Post</button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-between pt-4 border-t border-gray-800">
+                <button onClick={handleDeleteCard} className="text-red-400 hover:text-red-300 text-sm">Delete card</button>
+                <div className="flex gap-2">
+                  <button onClick={closeSidebar} className="btn-ghost">Cancel</button>
+                  <button onClick={saveCardDetail} className="btn-ember">Save</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -63,6 +63,7 @@ class CardBase(BaseModel):
     position: int = 0
     labels: Optional[str] = None  # JSON string
     assignee_id: Optional[int] = None
+    priority: str = "medium"  # low, medium, high
 
 
 class CardCreate(CardBase):
@@ -77,6 +78,7 @@ class CardUpdate(BaseModel):
     labels: Optional[str] = None
     assignee_id: Optional[int] = None
     due_date: Optional[datetime] = None
+    priority: Optional[str] = None
 
 
 class CardResponse(CardBase):
