@@ -20,3 +20,4 @@ slowapi
 psycopg2-binary
 alembic
 sentry-sdk>=2.0.0
+gunicorn
