@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'http://localhost:8000'
+// Smart Socket URL detection
+const getSocketUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace('http', 'ws')
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin.replace(':3000', ':8000').replace(':3001', ':8000').replace('http', 'ws')
+  }
+  return 'ws://localhost:8000'
+}
 
 interface UseSocketOptions {
   boardId?: number
@@ -17,6 +26,7 @@ interface UseSocketOptions {
 export function useSocket(options: UseSocketOptions = {}) {
   const socketRef = useRef<Socket | null>(null)
   const [connected, setConnected] = useState(false)
+  const [reconnecting, setReconnecting] = useState(false)
 
   const {
     boardId,
@@ -30,15 +40,22 @@ export function useSocket(options: UseSocketOptions = {}) {
   } = options
 
   useEffect(() => {
-    // Connect to Socket.IO
-    socketRef.current = io(SOCKET_URL, {
+    const socketUrl = getSocketUrl()
+    
+    // Connect to Socket.IO with reconnection settings
+    socketRef.current = io(socketUrl, {
       path: '/socket.io',
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     })
 
     socketRef.current.on('connect', () => {
       setConnected(true)
+      setReconnecting(false)
       console.log('Socket connected')
       
       // Join board room if boardId provided
@@ -50,6 +67,27 @@ export function useSocket(options: UseSocketOptions = {}) {
     socketRef.current.on('disconnect', () => {
       setConnected(false)
       console.log('Socket disconnected')
+    })
+
+    socketRef.current.on('reconnect_attempt', (attemptNumber: number) => {
+      setReconnecting(true)
+      console.log(`Socket reconnect attempt ${attemptNumber}`)
+    })
+
+    socketRef.current.on('reconnect', (attemptNumber: number) => {
+      setConnected(true)
+      setReconnecting(false)
+      console.log(`Socket reconnected after ${attemptNumber} attempts`)
+      
+      // Re-join board room after reconnection
+      if (boardId) {
+        socketRef.current?.emit('join_board', { board_id: boardId })
+      }
+    })
+
+    socketRef.current.on('reconnect_failed', () => {
+      setReconnecting(false)
+      console.log('Socket reconnection failed')
     })
 
     // Set up event listeners
@@ -102,6 +140,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   return {
     socket: socketRef.current,
     connected,
+    reconnecting,
     joinBoard,
     leaveBoard,
   }
