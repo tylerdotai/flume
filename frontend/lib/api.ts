@@ -127,3 +127,9 @@ export const deleteComment = (token: string, commentId: number) =>
     method: 'DELETE',
     token,
   })
+
+export const deleteList = (token: string, listId: number) =>
+  fetchApi<void>(`/api/v1/lists/${listId}`, {
+    method: 'DELETE',
+    token,
+  })

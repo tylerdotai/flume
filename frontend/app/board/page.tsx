@@ -62,13 +62,13 @@ export default function BoardPage() {
     } catch (err) { console.error(err) }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
     <div className="min-h-screen p-8">
       <header className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-cream">Your Boards</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Your Boards</h1>
           <p className="text-gray-500">Welcome back, {user?.username}</p>
         </div>
         <button onClick={logout} className="btn-ghost">Sign out</button>
@@ -79,7 +79,7 @@ export default function BoardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <button onClick={() => setShowCreate(true)} className="card p-6 flex items-center justify-center min-h-[160px] border-dashed hover:border-ember">
           <div className="text-center">
-            <div className="text-4xl text-ember mb-2">+</div>
+            <div className="text-4xl text-accent mb-2">+</div>
             <div className="text-gray-400">Create new board</div>
           </div>
         </button>
@@ -87,7 +87,7 @@ export default function BoardPage() {
         {boards.map((board) => (
           <div key={board.id} className="card p-6 relative group">
             <div className="absolute top-0 left-0 w-full h-2 rounded-t-xl" style={{ backgroundColor: board.color }} />
-            <h3 className="text-lg font-semibold text-cream mt-2">{board.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mt-2">{board.name}</h3>
             <div className="flex gap-2 mt-4">
               <Link href={`/board/${board.id}`} className="btn-ember flex-1 text-center py-2">Open</Link>
               <button onClick={() => handleDelete(board.id)} className="btn-ghost px-3 py-2 text-red-400">×</button>
@@ -99,14 +99,14 @@ export default function BoardPage() {
       {showCreate && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
           <div className="card p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-cream mb-4">Create Board</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Create Board</h2>
             <form onSubmit={handleCreate}>
               <input
                 type="text"
                 value={newBoardName}
                 onChange={(e) => setNewBoardName(e.target.value)}
                 placeholder="Board name"
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none mb-4"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:border-ember focus:outline-none mb-4"
                 autoFocus
               />
               <div className="mb-4">

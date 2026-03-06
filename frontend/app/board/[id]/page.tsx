@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getLists, getCards, createCard, createList, updateCard, deleteCard, getComments, createComment } from '@/lib/api'
+import { getLists, getCards, createCard, createList, updateCard, deleteCard, deleteList, getComments, createComment } from '@/lib/api'
 import { useSocket } from '@/lib/useSocket'
 import { useRouter, useParams } from 'next/navigation'
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
@@ -135,6 +135,19 @@ export default function BoardDetailPage() {
     } catch (err) { console.error(err) }
   }
 
+  const handleDeleteList = async (listId: number) => {
+    if (!token || !confirm('Delete this list and all its cards?')) return
+    try {
+      await deleteList(token, listId)
+      setLists(lists.filter(l => l.id !== listId))
+      setCards(prev => {
+        const newState = { ...prev }
+        delete newState[listId]
+        return newState
+      })
+    } catch (err) { console.error(err) }
+  }
+
   const handleCreateCard = async (listId: number, e: React.FormEvent) => {
     e.preventDefault()
     if (!token || !newCardName.trim()) return
@@ -242,14 +255,14 @@ export default function BoardDetailPage() {
 
   const getPriorityColor = (p: string) => PRIORITIES.find(x => x.value === p)?.color || '#EAB308'
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen p-4 sm:p-6 overflow-x-auto">
         <header className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-cream">← Back</button>
-          <h1 className="text-xl sm:text-2xl font-bold text-cream">Board {boardId}</h1>
+          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Board {boardId}</h1>
           <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
             {connected ? '● Live' : '○ Offline'}
           </span>
@@ -259,7 +272,10 @@ export default function BoardDetailPage() {
           {lists.map((list) => (
             <div key={list.id} className="flex-shrink-0 w-72">
               <div className="flex justify-between items-center mb-2 px-2">
-                <h3 className="font-semibold text-cream">{list.name}</h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-800">{list.name}</h3>
+                  <button onClick={() => handleDeleteList(list.id)} className="text-gray-400 hover:text-red-500 text-sm">Delete</button>
+                </div>
                 <span className="text-gray-500 text-sm">{cards[list.id]?.length || 0}</span>
               </div>
               <SortableContext items={(cards[list.id] || []).map(c => c.id)} strategy={verticalListSortingStrategy}>
@@ -283,7 +299,7 @@ export default function BoardDetailPage() {
                     value={newCardName} 
                     onChange={(e) => setNewCardName(e.target.value)} 
                     placeholder="Card title" 
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none" 
                     autoFocus 
                   />
                   <div className="flex gap-2 mt-2">
@@ -292,7 +308,7 @@ export default function BoardDetailPage() {
                   </div>
                 </form>
               ) : (
-                <button onClick={() => setShowAddCard(list.id)} className="w-full p-2 text-left text-gray-500 hover:text-ember text-sm">
+                <button onClick={() => setShowAddCard(list.id)} className="w-full p-2 text-left text-gray-500 hover:text-accent text-sm">
                   + Add card
                 </button>
               )}
@@ -306,7 +322,7 @@ export default function BoardDetailPage() {
                   value={newListName} 
                   onChange={(e) => setNewListName(e.target.value)} 
                   placeholder="List name" 
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none mb-2" 
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:border-ember focus:outline-none mb-2" 
                   autoFocus 
                 />
                 <div className="flex gap-2">
@@ -316,7 +332,7 @@ export default function BoardDetailPage() {
               </form>
             </div>
           ) : (
-            <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-72 p-4 card border-dashed text-gray-400 hover:text-ember text-center">
+            <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-72 p-4 card border-dashed text-gray-400 hover:text-accent text-center">
               + Add list
             </button>
           )}
@@ -324,8 +340,8 @@ export default function BoardDetailPage() {
       </div>
       <DragOverlay>
         {activeCard ? (
-          <div className="card p-3 bg-gray-800 border-ember">
-            <div className="text-cream">{activeCard.title}</div>
+          <div className="card p-3 bg-gray-50 border-ember">
+            <div className="text-gray-800">{activeCard.title}</div>
           </div>
         ) : null}
       </DragOverlay>
@@ -337,7 +353,7 @@ export default function BoardDetailPage() {
           <div className="absolute inset-0 bg-black/50" onClick={closeSidebar}></div>
           
           {/* Sidebar panel */}
-          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 bg-gray-900 border-l border-gray-800 overflow-y-auto">
+          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 bg-white border-l border-gray-200 overflow-y-auto">
             <div className="p-4 sm:p-6">
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
@@ -345,9 +361,9 @@ export default function BoardDetailPage() {
                   type="text" 
                   value={editTitle} 
                   onChange={(e) => setEditTitle(e.target.value)} 
-                  className="text-lg sm:text-xl font-bold bg-transparent text-cream border-b border-gray-800 focus:border-ember focus:outline-none flex-1 mr-2" 
+                  className="text-lg sm:text-xl font-bold bg-transparent text-gray-800 border-b border-gray-200 focus:border-ember focus:outline-none flex-1 mr-2" 
                 />
-                <button onClick={closeSidebar} className="text-gray-500 hover:text-cream">✕</button>
+                <button onClick={closeSidebar} className="text-gray-500 hover:text-gray-800">✕</button>
               </div>
               
               {/* Priority */}
@@ -361,7 +377,7 @@ export default function BoardDetailPage() {
                       className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                         editPriority === p.value 
                           ? 'text-black' 
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'bg-gray-50 text-gray-300 hover:bg-gray-700'
                       }`}
                       style={{ 
                         backgroundColor: editPriority === p.value ? p.color : undefined 
@@ -379,13 +395,13 @@ export default function BoardDetailPage() {
                   <label className="block text-sm text-gray-400">Description</label>
                   <button 
                     onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
-                    className="text-xs text-ember hover:text-ember-light"
+                    className="text-xs text-accent hover:text-accent-light"
                   >
                     {showMarkdownPreview ? 'Edit' : 'Preview'}
                   </button>
                 </div>
                 {showMarkdownPreview ? (
-                  <div className="prose prose-invert prose-sm max-w-none bg-gray-800 p-3 rounded-lg text-cream">
+                  <div className="prose prose-invert prose-sm max-w-none bg-gray-50 p-3 rounded-lg text-gray-800">
                     <ReactMarkdown>{editDescription}</ReactMarkdown>
                   </div>
                 ) : (
@@ -393,7 +409,7 @@ export default function BoardDetailPage() {
                     value={editDescription} 
                     onChange={(e) => setEditDescription(e.target.value)} 
                     rows={12} 
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none font-mono"
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none font-mono"
                     placeholder="## What&#10;-&#10;&#10;## Why&#10;-&#10;&#10;## How&#10;- &#10;&#10;## When&#10;- Start:&#10;- End:"
                   />
                 )}
@@ -406,7 +422,7 @@ export default function BoardDetailPage() {
                   type="date" 
                   value={editDueDate} 
                   onChange={(e) => setEditDueDate(e.target.value)} 
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none" 
                 />
               </div>
               
@@ -433,7 +449,7 @@ export default function BoardDetailPage() {
                 <select 
                   value={editAssignee || ''} 
                   onChange={(e) => setEditAssignee(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none"
                 >
                   <option value="">Unassigned</option>
                   <option value={user?.id}>{user?.username}</option>
@@ -441,11 +457,11 @@ export default function BoardDetailPage() {
               </div>
 
               {/* Comments Section */}
-              <div className="mb-4 border-t border-gray-800 pt-4">
+              <div className="mb-4 border-t border-gray-200 pt-4">
                 <label className="block text-sm text-gray-400 mb-2">Comments</label>
                 <div className="space-y-2 mb-2 max-h-40 overflow-y-auto">
                   {comments.map(comment => (
-                    <div key={comment.id} className="text-sm text-cream bg-gray-800 p-2 rounded">
+                    <div key={comment.id} className="text-sm text-gray-800 bg-gray-50 p-2 rounded">
                       {comment.content}
                     </div>
                   ))}
@@ -456,14 +472,14 @@ export default function BoardDetailPage() {
                     value={newComment} 
                     onChange={(e) => setNewComment(e.target.value)} 
                     placeholder="Add a comment..." 
-                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-cream text-sm focus:border-ember focus:outline-none" 
+                    className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none" 
                   />
                   <button onClick={handleAddComment} className="btn-ember py-1 px-3 text-sm">Post</button>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex justify-between pt-4 border-t border-gray-800">
+              <div className="flex justify-between pt-4 border-t border-gray-200">
                 <button onClick={handleDeleteCard} className="text-red-400 hover:text-red-300 text-sm">Delete card</button>
                 <div className="flex gap-2">
                   <button onClick={closeSidebar} className="btn-ghost">Cancel</button>

@@ -57,14 +57,14 @@ export default function ApiKeysPage() {
     }
   }
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-cream">← Back</button>
-          <h1 className="text-2xl font-bold text-cream">API Keys</h1>
+          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
+          <h1 className="text-2xl font-bold text-gray-800">API Keys</h1>
         </div>
 
         <p className="text-gray-400 mb-6">
@@ -76,8 +76,8 @@ export default function ApiKeysPage() {
         {newKey && (
           <div className="card p-4 mb-6 border-yellow-500/50 bg-yellow-500/10">
             <h3 className="text-yellow-400 font-bold mb-2">⚠️ Save this key now!</h3>
-            <code className="block bg-gray-900 p-3 rounded text-cream text-sm break-all">{newKey}</code>
-            <button onClick={() => setNewKey('')} className="mt-2 text-gray-400 hover:text-cream text-sm">
+            <code className="block bg-white p-3 rounded text-gray-800 text-sm break-all">{newKey}</code>
+            <button onClick={() => setNewKey('')} className="mt-2 text-gray-400 hover:text-gray-800 text-sm">
               I've saved it - hide this
             </button>
           </div>
@@ -88,7 +88,7 @@ export default function ApiKeysPage() {
           {keys.map(key => (
             <div key={key.id} className="card p-4 flex justify-between items-center">
               <div>
-                <div className="text-cream font-medium">{key.name}</div>
+                <div className="text-gray-800 font-medium">{key.name}</div>
                 <div className="text-gray-500 text-sm">
                   Created: {new Date(key.created_at).toLocaleDateString()}
                   {!key.is_active && <span className="text-red-400 ml-2">(Revoked)</span>}
@@ -111,7 +111,7 @@ export default function ApiKeysPage() {
         {/* Create Form */}
         {showForm ? (
           <form onSubmit={handleCreate} className="card p-4 space-y-4">
-            <h2 className="text-lg font-bold text-cream">New API Key</h2>
+            <h2 className="text-lg font-bold text-gray-800">New API Key</h2>
             
             <div>
               <label className="block text-sm text-gray-400 mb-1">Name (e.g., "Hoss", "Claude")</label>
@@ -120,7 +120,7 @@ export default function ApiKeysPage() {
                 value={keyName}
                 onChange={(e) => setKeyName(e.target.value)}
                 placeholder="Agent name"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none"
                 required
               />
             </div>

@@ -86,14 +86,14 @@ export default function WebhooksPage() {
     )
   }
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-ember">Loading...</div></div>
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-cream">← Back</button>
-          <h1 className="text-2xl font-bold text-cream">Webhooks</h1>
+          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
+          <h1 className="text-2xl font-bold text-gray-800">Webhooks</h1>
         </div>
 
         <p className="text-gray-400 mb-6">
@@ -106,7 +106,7 @@ export default function WebhooksPage() {
           {webhooks.map(webhook => (
             <div key={webhook.id} className="card p-4">
               <div className="flex justify-between items-start mb-2">
-                <div className="text-cream font-medium truncate flex-1">{webhook.url}</div>
+                <div className="text-gray-800 font-medium truncate flex-1">{webhook.url}</div>
                 <div className="flex gap-2 ml-2">
                   <button 
                     onClick={() => handleTest(webhook.id)}
@@ -125,7 +125,7 @@ export default function WebhooksPage() {
               </div>
               <div className="flex gap-2 flex-wrap">
                 {JSON.parse(webhook.events).map((e: string) => (
-                  <span key={e} className="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded">{e}</span>
+                  <span key={e} className="text-xs bg-gray-50 text-gray-300 px-2 py-1 rounded">{e}</span>
                 ))}
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function WebhooksPage() {
         {/* Add Form */}
         {showForm ? (
           <form onSubmit={handleCreate} className="card p-4 space-y-4">
-            <h2 className="text-lg font-bold text-cream">New Webhook</h2>
+            <h2 className="text-lg font-bold text-gray-800">New Webhook</h2>
             
             <div>
               <label className="block text-sm text-gray-400 mb-1">URL</label>
@@ -147,7 +147,7 @@ export default function WebhooksPage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://your-server.com/webhook"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none"
                 required
               />
             </div>
@@ -159,7 +159,7 @@ export default function WebhooksPage() {
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
                 placeholder="Webhook secret for verification"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-cream text-sm focus:border-ember focus:outline-none"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none"
               />
             </div>
 
@@ -174,7 +174,7 @@ export default function WebhooksPage() {
                     className={`text-xs px-2 py-1 rounded transition-colors ${
                       selectedEvents.includes(event)
                         ? 'bg-ember text-black'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        : 'bg-gray-50 text-gray-300 hover:bg-gray-700'
                     }`}
                   >
                     {event}
