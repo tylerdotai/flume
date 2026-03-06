@@ -74,7 +74,7 @@ export default function BoardPage() {
     <div className="min-h-screen p-8 flex flex-col">
       <header className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/board" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
             <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
           </Link>

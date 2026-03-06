@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getLists, getCards, createCard, createList, updateCard, deleteCard, deleteList, getComments, createComment } from '@/lib/api'
+import { getLists, getCards, createCard, createList, updateCard, deleteCard, deleteList, getComments, createComment, getBoard } from '@/lib/api'
 import { useSocket } from '@/lib/useSocket'
 import { useRouter, useParams } from 'next/navigation'
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
@@ -46,6 +46,7 @@ export default function BoardDetailPage() {
   const params = useParams()
   const boardId = Number(params.id)
 
+  const [board, setBoard] = useState<any>(null)
   const [lists, setLists] = useState<List[]>([])
   const [cards, setCards] = useState<Record<number, Card[]>>({})
   const [showAddList, setShowAddList] = useState(false)
@@ -106,7 +107,15 @@ export default function BoardDetailPage() {
   })
 
   useEffect(() => { if (!authLoading && !token) router.push('/login') }, [authLoading, token, router])
-  useEffect(() => { if (token && boardId) loadLists() }, [token, boardId])
+  useEffect(() => { if (token && boardId) { loadBoard(); loadLists(); } }, [token, boardId])
+
+  const loadBoard = async () => {
+    if (!token) return
+    try {
+      const data = await getBoard(token, boardId)
+      setBoard(data)
+    } catch (err) { console.error(err) }
+  }
 
   const loadLists = async () => {
     if (!token) return
@@ -266,7 +275,7 @@ export default function BoardDetailPage() {
       <div className="min-h-screen p-4 sm:p-6 overflow-x-auto">
         <header className="flex items-center gap-4 mb-6">
           <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Board {boardId}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{board?.name || 'Board'}</h1>
           <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
             {connected ? '● Live' : '○ Offline'}
           </span>

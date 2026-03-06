@@ -74,6 +74,9 @@ export const getMe = (token: string) =>
 export const getBoards = (token: string) =>
   fetchApi<any[]>('/api/v1/boards', { token })
 
+export const getBoard = (token: string, boardId: number) =>
+  fetchApi<any>(`/api/v1/boards/${boardId}`, { token })
+
 export const createBoard = (token: string, data: { name: string; description?: string; color?: string }) =>
   fetchApi<any>('/api/v1/boards', {
     method: 'POST',
