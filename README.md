@@ -107,4 +107,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built with ❤️ by [@tylerdotai](https://x.com/tylerdotai)
+Built with 🦞 by [@tylerdotai](https://x.com/tylerdotai)
