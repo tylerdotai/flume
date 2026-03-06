@@ -263,13 +263,24 @@ export default function BoardDetailPage() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen p-4 sm:p-6 overflow-x-auto">
-        <header className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Board {boardId}</h1>
-          <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-            {connected ? '● Live' : '○ Offline'}
-          </span>
+      <div className="min-h-screen p-4 sm:p-6 overflow-x-auto flex flex-col">
+        <header className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+              <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+            </Link>
+            <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Boards</button>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Board {boardId}</h1>
+            <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {connected ? '● Live' : '○ Offline'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/webhooks" className="btn-ghost text-sm">Webhooks</Link>
+            <Link href="/api-keys" className="btn-ghost text-sm">API Keys</Link>
+            <button onClick={logout} className="btn-ghost text-sm">Sign out</button>
+          </div>
         </header>
         
         <div className="flex gap-4 items-start">
@@ -494,6 +505,20 @@ export default function BoardDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="border-t mt-auto pt-4 pb-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+            <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
+          </div>
+          <p className="text-sm" style={{ color: '#999' }}>
+            <a href="https://x.com/tylerdotai" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>Property of Tyler</a>
+          </p>
+        </div>
+      </footer>
+      </div>
     </DndContext>
   )
 }

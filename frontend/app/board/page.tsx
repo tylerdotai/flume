@@ -71,15 +71,19 @@ export default function BoardPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 flex flex-col">
       <header className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Your Boards</h1>
-          <p className="text-gray-500">Welcome back, {user?.username}</p>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+            <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+          </Link>
         </div>
-        <button onClick={logout} className="btn-ghost">Sign out</button>
-          <Link href="/webhooks" className="btn-ghost ml-2">Webhooks</Link>
-          <Link href="/api-keys" className="btn-ghost ml-2">API Keys</Link>
+        <div className="flex items-center gap-2">
+          <Link href="/webhooks" className="btn-ghost">Webhooks</Link>
+          <Link href="/api-keys" className="btn-ghost">API Keys</Link>
+          <button onClick={logout} className="btn-ghost">Sign out</button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -137,6 +141,19 @@ export default function BoardPage() {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="border-t mt-auto pt-8 pb-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+            <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
+          </div>
+          <p className="text-sm" style={{ color: '#999' }}>
+            <a href="https://x.com/tylerdotai" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>Property of Tyler</a>
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }

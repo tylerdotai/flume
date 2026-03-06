@@ -68,7 +68,7 @@ export default function ApiKeysPage() {
         </div>
 
         <p className="text-gray-400 mb-6">
-          API keys let AI agents (like Hoss) access your boards. 
+          API keys let AI agents access your boards. 
           The key is only shown once when created - save it immediately!
         </p>
 
@@ -114,7 +114,7 @@ export default function ApiKeysPage() {
             <h2 className="text-lg font-bold text-gray-800">New API Key</h2>
             
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Name (e.g., "Hoss", "Claude")</label>
+              <label className="block text-sm text-gray-400 mb-1">Name (e.g., "AI Agent", "Claude")</label>
               <input
                 type="text"
                 value={keyName}
