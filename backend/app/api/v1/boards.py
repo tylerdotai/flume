@@ -34,6 +34,9 @@ from app.db.models import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
+# Import decode_token for JWT handling
+from app.core.security import decode_token
+
 
 def get_current_user_or_api_key(
     token: Optional[str] = Depends(oauth2_scheme),
@@ -43,7 +46,7 @@ def get_current_user_or_api_key(
     """Get current user from either JWT or API key."""
     # First try JWT
     if token:
-        user_id = get_current_user.__wrapped__(token, db) if hasattr(get_current_user, '__wrapped__') else None
+        user_id = decode_token(token)
         if user_id:
             user = db.query(User).filter(User.id == user_id).first()
             if user:
