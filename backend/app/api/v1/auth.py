@@ -80,6 +80,8 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
+
+@router.post("/login", response_model=Token)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """Login and get access token."""
     user = db.query(User).filter(User.email == login_data.email).first()
@@ -94,13 +96,13 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user",
+        )
 
-    # Require email verification (optional - comment out to disable)
-    # if not user.is_verified:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="Email not verified. Check your inbox or go to /resend-verification",
-    #     )
+    # Require email verification
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified. Check your inbox or go to /resend-verification",
         )
 
     access_token = create_access_token(
