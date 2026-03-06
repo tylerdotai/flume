@@ -71,7 +71,7 @@ export default function BoardPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
-    <div className="min-h-screen p-8 flex flex-col">
+    <div className="min-h-screen p-4 sm:p-6 flex flex-col overflow-x-auto">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <Link href="/board" className="flex items-center gap-2">

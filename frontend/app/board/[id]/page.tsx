@@ -368,7 +368,7 @@ export default function BoardDetailPage() {
         
         <div className="flex gap-4 items-start">
           {lists.map((list) => (
-            <div key={list.id} className="flex-shrink-0 w-72">
+            <div key={list.id} className="flex-shrink-0 w-64 sm:w-72">
               <div className="flex justify-between items-center mb-2 px-2">
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-gray-800">{list.name}</h3>
@@ -413,7 +413,7 @@ export default function BoardDetailPage() {
             </div>
           ))}
           {showAddList ? (
-            <div className="flex-shrink-0 w-72">
+            <div className="flex-shrink-0 w-64 sm:w-72">
               <form onSubmit={handleCreateList} className="card p-4">
                 <input 
                   type="text" 
@@ -430,7 +430,7 @@ export default function BoardDetailPage() {
               </form>
             </div>
           ) : (
-            <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-72 p-4 card border-dashed text-gray-400 hover:text-accent text-center">
+            <button onClick={() => setShowAddList(true)} className="flex-shrink-0 w-64 sm:w-72 p-4 card border-dashed text-gray-400 hover:text-accent text-center">
               + Add list
             </button>
           )}
