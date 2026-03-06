@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "Flume"
     DEBUG: bool = True
+    BASE_URL: str = os.getenv("BASE_URL", "https://flume.sh")
 
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "CHANGE-ME-IN-PRODUCTION")
@@ -23,6 +24,13 @@ class Settings(BaseSettings):
 
     # CORS - allow all for development, restrict in production
     BACKEND_CORS_ORIGINS: str = "*"
+    
+    # Email (optional - for password reset & verification)
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM: str = os.getenv("SMTP_FROM", "noreply@flume.sh")
 
     @property
     def cors_list(self) -> List[str]:
@@ -35,6 +43,11 @@ class Settings(BaseSettings):
         except (json.JSONDecodeError, TypeError):
             # If it's a single URL, wrap in list
             return [self.BACKEND_CORS_ORIGINS]
+    
+    @property
+    def email_enabled(self) -> bool:
+        """Check if email is configured."""
+        return bool(self.SMTP_HOST and self.SMTP_USER)
 
     class Config:
         env_file = ".env"

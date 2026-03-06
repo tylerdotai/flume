@@ -15,9 +15,17 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
     is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Password reset
+    password_reset_token = Column(String(255), nullable=True)
+    password_reset_expires = Column(DateTime(timezone=True), nullable=True)
+    
+    # Email verification
+    verification_token = Column(String(255), nullable=True)
 
     # Relationships
     boards = relationship("Board", back_populates="owner")

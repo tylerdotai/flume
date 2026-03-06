@@ -6,8 +6,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.v1.auth import get_current_user
+from app.api.v1.boards import get_current_user_or_api_key
 from app.core.webhooks import WEBHOOK_EVENTS, trigger_event
-from app.db import User, Webhook
+from app.db import User, Webhook, APIKey
 from app.db.session import get_db
 
 router = APIRouter(prefix="/api/v1/webhooks", tags=["webhooks"])
@@ -33,7 +34,7 @@ class WebhookResponse(BaseModel):
 @router.get("", response_model=List[WebhookResponse])
 def list_webhooks(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """List all webhooks for the current user."""
     # For now, all webhooks are global - could add owner_id later
@@ -54,7 +55,7 @@ def list_webhooks(
 def create_webhook(
     webhook_data: WebhookCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Create a new webhook."""
     # Validate events
@@ -87,7 +88,7 @@ def create_webhook(
 def delete_webhook(
     webhook_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Delete a webhook."""
     webhook = db.query(Webhook).filter(Webhook.id == webhook_id).first()
@@ -103,7 +104,7 @@ def delete_webhook(
 async def test_webhook(
     webhook_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Test a webhook by sending a ping event."""
     webhook = db.query(Webhook).filter(Webhook.id == webhook_id).first()

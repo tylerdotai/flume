@@ -1,5 +1,5 @@
 """Authentication API routes."""
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -12,9 +12,10 @@ from app.core.security import (
     create_access_token,
     decode_token,
 )
+from app.core.email import generate_token, send_password_reset_email, send_verification_email
 from app.db import User
 from app.db.session import get_db
-from app.schemas.auth import UserCreate, UserResponse, Token, LoginRequest
+from app.schemas.auth import UserCreate, UserResponse, Token, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -66,6 +67,14 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+    
+    # Generate verification token and send email
+    token, _ = generate_token()
+    user.verification_token = token
+    db.commit()
+    
+    # Send verification email (logs if not configured)
+    send_verification_email(user.email, user.username, token)
 
     return user
 
@@ -99,3 +108,90 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 def get_me(current_user: User = Depends(get_current_user)):
     """Get current user info."""
     return current_user
+
+
+from datetime import datetime
+from app.schemas.auth import ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest
+from app.core.email import generate_token, send_password_reset_email, send_verification_email
+
+
+@router.post("/forgot-password")
+def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Request password reset email."""
+    user = db.query(User).filter(User.email == request.email).first()
+    
+    # Always return success to prevent email enumeration
+    if user:
+        token, expires = generate_token()
+        user.password_reset_token = token
+        user.password_reset_expires = expires
+        db.commit()
+        
+        # Send email (will log if not configured)
+        send_password_reset_email(user.email, user.username, token)
+    
+    return {"message": "If that email exists, we've sent a password reset link."}
+
+
+@router.post("/reset-password")
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Reset password with token."""
+    user = db.query(User).filter(User.password_reset_token == request.token).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token",
+        )
+    
+    if user.password_reset_expires and user.password_reset_expires < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token expired",
+        )
+    
+    # Update password
+    user.hashed_password = get_password_hash(request.new_password)
+    user.password_reset_token = None
+    user.password_reset_expires = None
+    db.commit()
+    
+    return {"message": "Password reset successful"}
+
+
+@router.post("/verify-email")
+def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
+    """Verify email with token."""
+    user = db.query(User).filter(User.verification_token == request.token).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification token",
+        )
+    
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+    
+    return {"message": "Email verified successfully"}
+
+
+@router.post("/resend-verification")
+def resend_verification(email: str, db: Session = Depends(get_db)):
+    """Resend verification email."""
+    user = db.query(User).filter(User.email == email).first()
+    
+    if not user:
+        return {"message": "If that email exists, we've sent a verification link."}
+    
+    if user.is_verified:
+        return {"message": "Email already verified."}
+    
+    token, _ = generate_token()
+    user.verification_token = token
+    db.commit()
+    
+    send_verification_email(user.email, user.username, token)
+    
+    return {"message": "Verification email sent."}

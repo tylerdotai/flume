@@ -16,6 +16,7 @@ class UserResponse(UserBase):
     id: int
     full_name: str | None = None
     is_active: bool = True
+    is_verified: bool = False
 
     class Config:
         from_attributes = True
@@ -34,3 +35,18 @@ class TokenData(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+# Password reset schemas
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+# Email verification schemas
+class VerifyEmailRequest(BaseModel):
+    token: str

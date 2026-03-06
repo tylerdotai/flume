@@ -1,12 +1,13 @@
 """Board API routes."""
 import asyncio
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.api.v1.auth import get_current_user
-from app.db import Board, BoardList, Card
+from app.db import Board, BoardList, Card, APIKey
 from app.db.session import get_db
 from app.schemas.board import (
     BoardCreate,
@@ -28,6 +29,36 @@ from app.core.socketio import (
     emit_comment_created,
 )
 from app.db.models import User
+
+# Combined auth - accepts JWT or API key
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def get_current_user_or_api_key(
+    token: Optional[str] = Depends(oauth2_scheme),
+    api_key: Optional[str] = Depends(api_key_header),
+    db: Session = Depends(get_db),
+) -> User:
+    """Get current user from either JWT or API key."""
+    # First try JWT
+    if token:
+        user_id = get_current_user.__wrapped__(token, db) if hasattr(get_current_user, '__wrapped__') else None
+        if user_id:
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                return user
+    
+    # Then try API key
+    if api_key:
+        key_record = db.query(APIKey).filter(APIKey.key == api_key, APIKey.is_active == True).first()
+        if key_record:
+            return key_record.user
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+    )
 
 router = APIRouter(prefix="/api/v1", tags=["boards"])
 
@@ -97,7 +128,7 @@ def notify_card_deleted(board_id: int, card_id: int):
 @router.get("/boards", response_model=List[BoardResponse])
 def get_boards(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Get all boards for current user."""
     return db.query(Board).filter(Board.owner_id == current_user.id).all()
@@ -108,7 +139,7 @@ def create_board(
     board_data: BoardCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Create a new board."""
     board = Board(
@@ -130,7 +161,7 @@ def create_board(
 def get_board(
     board_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Get a specific board."""
     board = db.query(Board).filter(Board.id == board_id).first()
@@ -148,7 +179,7 @@ def update_board(
     board_id: int,
     board_data: BoardUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Update a board."""
     board = db.query(Board).filter(Board.id == board_id).first()
@@ -177,7 +208,7 @@ def update_board(
 def delete_board(
     board_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Delete a board."""
     board = db.query(Board).filter(Board.id == board_id).first()
@@ -200,7 +231,7 @@ def delete_board(
 def get_lists(
     board_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Get all lists in a board."""
     board = db.query(Board).filter(Board.id == board_id).first()
@@ -219,7 +250,7 @@ def create_list(
     list_data: ListCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Create a new list in a board."""
     board = db.query(Board).filter(Board.id == board_id).first()
@@ -251,7 +282,7 @@ def update_list(
     list_data: ListUpdate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Update a list."""
     board_list = db.query(BoardList).filter(BoardList.id == list_id).first()
@@ -280,7 +311,7 @@ def delete_list(
     list_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Delete a list."""
     board_list = db.query(BoardList).filter(BoardList.id == list_id).first()
@@ -307,7 +338,7 @@ def delete_list(
 def get_cards(
     list_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Get all cards in a list."""
     board_list = db.query(BoardList).filter(BoardList.id == list_id).first()
@@ -327,7 +358,7 @@ def create_card(
     card_data: CardCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Create a new card in a list."""
     board_list = db.query(BoardList).filter(BoardList.id == list_id).first()
@@ -368,7 +399,7 @@ def update_card(
     card_data: CardUpdate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Update a card."""
     card = db.query(Card).filter(Card.id == card_id).first()
@@ -413,7 +444,7 @@ def delete_card(
     card_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Delete a card."""
     card = db.query(Card).filter(Card.id == card_id).first()
@@ -441,7 +472,7 @@ def delete_card(
 def get_comments(
     card_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Get all comments for a card."""
     card = db.query(Card).filter(Card.id == card_id).first()
@@ -461,7 +492,7 @@ def create_comment(
     card_id: int,
     comment_data: CommentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_or_api_key),
 ):
     """Add a comment to a card."""
     card = db.query(Card).filter(Card.id == card_id).first()
