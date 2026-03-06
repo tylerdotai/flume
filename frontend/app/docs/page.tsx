@@ -6,7 +6,7 @@ export default function Docs() {
   return (
     <div className="min-h-screen" style={{ background: '#F9F7F2' }}>
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
@@ -15,6 +15,7 @@ export default function Docs() {
         <div className="flex items-center gap-8">
           <Link href="/product" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>
           <Link href="/docs" className="text-sm font-medium" style={{ color: '#FF5A1F' }}>Docs</Link>
+          <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#666' }}>Agent</Link>
           <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#666' }}>Agent</Link>
           <Link href="/login" className="text-sm font-medium" style={{ color: '#1A1A1A' }}>Login</Link>
           <Link 
