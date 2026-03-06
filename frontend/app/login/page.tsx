@@ -21,11 +21,15 @@ export default function LoginPage() {
       await login(email, password)
       router.push('/board')
     } catch (err: any) {
-      setError(err.message || 'Login failed')
+      const errorMsg = err.message || err.detail || 'Login failed'
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
   }
+
+  // Check if error is about email verification
+  const isVerificationError = error && error.toLowerCase().includes('not verified')
 
   return (
     <div className="min-h-screen flex" style={{ background: '#F9F7F2' }}>
@@ -63,6 +67,17 @@ export default function LoginPage() {
           {error && (
             <div className="mb-6 p-4 rounded-lg" style={{ background: '#FEF2F2', color: '#DC2626' }}>
               {error}
+              {isVerificationError && (
+                <div className="mt-3">
+                  <Link 
+                    href="/resend-verification" 
+                    className="inline-block px-4 py-2 rounded-lg font-semibold text-white"
+                    style={{ background: '#FF5A1F' }}
+                  >
+                    Resend verification email
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 

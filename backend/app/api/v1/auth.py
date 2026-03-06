@@ -15,7 +15,7 @@ from app.core.security import (
 from app.core.email import generate_token, send_password_reset_email, send_verification_email
 from app.db import User
 from app.db.session import get_db
-from app.schemas.auth import UserCreate, UserResponse, Token, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest
+from app.schemas.auth import UserCreate, UserResponse, Token, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest, ResendVerificationRequest
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -187,9 +187,9 @@ def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/resend-verification")
-def resend_verification(email: str, db: Session = Depends(get_db)):
+def resend_verification(request: ResendVerificationRequest, db: Session = Depends(get_db)):
     """Resend verification email."""
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(User.email == request.email).first()
     
     if not user:
         return {"message": "If that email exists, we've sent a verification link."}

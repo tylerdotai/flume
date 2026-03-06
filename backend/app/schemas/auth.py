@@ -50,3 +50,11 @@ class ResetPasswordRequest(BaseModel):
 # Email verification schemas
 class VerifyEmailRequest(BaseModel):
     token: str
+
+
+class ResendVerificationRequest(BaseModel):
+    email: str
+
+
+class ResendVerificationRequest(BaseModel):
+    email: str
