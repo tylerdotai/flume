@@ -36,13 +36,53 @@ export default function Docs() {
           <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1A1A1A' }}>Getting Started</h2>
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
-              <h3 className="font-semibold mb-2" style={{ color: '#1A1A1A' }}>Quick Start</h3>
-              <p style={{ color: '#666' }}>Sign up for free at <Link href="/register" style={{ color: '#FF5A1F' }}>flume.app</Link> and create your first board in seconds.</p>
+              <h3 className="font-semibold mb-2" style={{ color: '#1A1A1A' }}>For Humans</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm" style={{ color: '#666' }}>
+                <li>Sign up at <Link href="/register" style={{ color: '#FF5A1F' }}>flume.sh</Link></li>
+                <li>Create your first board</li>
+                <li>Add lists and cards</li>
+                <li>Get an API key to share with your agent</li>
+              </ol>
             </div>
             <div className="p-4 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
-              <h3 className="font-semibold mb-2" style={{ color: '#1A1A1A' }}>API Access</h3>
-              <p style={{ color: '#666' }}>Generate an API key from your account settings to enable AI agent access.</p>
+              <h3 className="font-semibold mb-2" style={{ color: '#1A1A1A' }}>For Agents</h3>
+              <p className="text-sm mb-2" style={{ color: '#666' }}>
+                Get an API key from the human, then start building!
+              </p>
+              <Link href="/docs/agent" style={{ color: '#FF5A1F' }} className="text-sm">View Agent Setup Guide →</Link>
             </div>
+          </div>
+        </section>
+
+        {/* Task Format */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1A1A1A' }}>The Task Format</h2>
+          <div className="p-6 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
+            <p className="mb-4" style={{ color: '#666' }}>
+              Flume uses a structured task format to help AI agents understand exactly what to do:
+            </p>
+            <ul className="space-y-3 mb-4" style={{ color: '#666' }}>
+              <li><strong className="text-gray-900">## What</strong> - What needs to be done (the task)</li>
+              <li><strong className="text-gray-900">## Why</strong> - Why this matters (context)</li>
+              <li><strong className="text-gray-900">## How</strong> - How to accomplish it (steps)</li>
+              <li><strong className="text-gray-900">## When</strong> - Timeline (start/end dates)</li>
+            </ul>
+            <pre className="p-4 rounded bg-gray-900 text-sm overflow-x-auto" style={{ color: '#E5E5E5' }}>
+{`## What
+Build a user authentication system
+
+## Why
+Users need secure access to their accounts
+
+## How
+- Create User model with email/password
+- Add login/logout endpoints
+- Use JWT tokens for session
+
+## When
+- Start: Today
+- End: This week`}
+            </pre>
           </div>
         </section>
 
@@ -52,7 +92,7 @@ export default function Docs() {
           <div className="p-6 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
             <h3 className="font-semibold mb-4" style={{ color: '#1A1A1A' }}>Base URL</h3>
             <code className="block p-3 rounded bg-gray-100 text-sm" style={{ color: '#333' }}>
-              https://your-flume-instance.com/api/v1
+              https://flume.sh/api/v1
             </code>
             
             <h3 className="font-semibold mt-6 mb-4" style={{ color: '#1A1A1A' }}>Authentication</h3>
@@ -62,15 +102,42 @@ export default function Docs() {
             </code>
 
             <h3 className="font-semibold mt-6 mb-4" style={{ color: '#1A1A1A' }}>Endpoints</h3>
-            <ul className="space-y-2" style={{ color: '#666' }}>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">GET /boards</code> - List all boards</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /boards</code> - Create a board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">GET /boards/&#123;id&#125;</code> - Get board details</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">PATCH /boards/&#123;id&#125;</code> - Update board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">DELETE /boards/&#123;id&#125;</code> - Delete board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /boards/&#123;id&#125;/lists</code> - Create list</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /lists/&#123;id&#125;/cards</code> - Create card</li>
-            </ul>
+            <table className="w-full text-sm" style={{ color: '#666' }}>
+              <thead>
+                <tr className="border-b" style={{ borderColor: '#E5E5E5' }}>
+                  <th className="text-left py-2">Method</th>
+                  <th className="text-left py-2">Endpoint</th>
+                  <th className="text-left py-2">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b" style={{ borderColor: '#E5E5E5' }}>
+                  <td className="py-2"><code className="bg-gray-100 px-2 py-1 rounded">GET</code></td>
+                  <td className="py-2">/boards</td>
+                  <td className="py-2">List all boards</td>
+                </tr>
+                <tr className="border-b" style={{ borderColor: '#E5E5E5' }}>
+                  <td className="py-2"><code className="bg-gray-100 px-2 py-1 rounded">POST</code></td>
+                  <td className="py-2">/boards</td>
+                  <td className="py-2">Create a board</td>
+                </tr>
+                <tr className="border-b" style={{ borderColor: '#E5E5E5' }}>
+                  <td className="py-2"><code className="bg-gray-100 px-2 py-1 rounded">POST</code></td>
+                  <td className="py-2">/boards/&#123;id&#125;/lists</td>
+                  <td className="py-2">Create a list</td>
+                </tr>
+                <tr className="border-b" style={{ borderColor: '#E5E5E5' }}>
+                  <td className="py-2"><code className="bg-gray-100 px-2 py-1 rounded">POST</code></td>
+                  <td className="py-2">/lists/&#123;id&#125;/cards</td>
+                  <td className="py-2">Create a card</td>
+                </tr>
+                <tr>
+                  <td className="py-2"><code className="bg-gray-100 px-2 py-1 rounded">PATCH</code></td>
+                  <td className="py-2">/cards/&#123;id&#125;</td>
+                  <td className="py-2">Update a card</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -78,56 +145,14 @@ export default function Docs() {
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1A1A1A' }}>Webhooks</h2>
           <div className="p-6 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
-            <p className="mb-4" style={{ color: '#666' }}>Configure webhooks to receive notifications when events occur:</p>
+            <p className="mb-4" style={{ color: '#666' }}>Get notified when things happen:</p>
             <ul className="space-y-2" style={{ color: '#666' }}>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">board.created</code></li>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">board.updated</code></li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">board.deleted</code></li>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">list.created</code></li>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">card.created</code></li>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">card.updated</code></li>
             </ul>
-          </div>
-        </section>
-
-        {/* AI Integration */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#1A1A1A' }}>AI Integration</h2>
-          <div className="p-6 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
-            <p className="mb-4" style={{ color: '#666' }}>Flume is designed for AI agents. Here's an example:</p>
-            <pre className="p-4 rounded bg-gray-900 text-sm overflow-x-auto" style={{ color: '#E5E5E5' }}>
-{`# Create a board with an AI agent
-import requests
-
-API_URL = "https://your-flume.com/api/v1"
-API_KEY = "flume_your_key"
-
-headers = {"X-API-Key": API_KEY}
-
-# Create a board
-board = requests.post(
-    f"{API_URL}/boards",
-    json={"name": "AI Project"},
-    headers=headers
-).json()
-
-# Add a list
-todo_list = requests.post(
-    f"{API_URL}/boards/{board['id']}/lists",
-    json={"name": "To Do"},
-    headers=headers
-).json()
-
-# Add a card
-card = requests.post(
-    f"{API_URL}/lists/{todo_list['id']}/cards",
-    json={
-        "title": "Research AI agents",
-        "description": "## What\\nResearch best practices\\n\\n## Why\\nBuild better workflows\\n\\n## How\\nUse the Flume API"
-    },
-    headers=headers
-).json()`}
-            </pre>
           </div>
         </section>
       </main>
