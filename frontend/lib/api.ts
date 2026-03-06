@@ -1,4 +1,13 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Smart API URL detection
+const getApiUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL
+  if (typeof window !== 'undefined') {
+    // In browser: use same host, port 8000
+    return window.location.origin.replace(':3000', ':8000').replace(':3001', ':8000')
+  }
+  return 'http://localhost:8000'
+}
+const API_URL = getApiUrl()
 
 interface FetchOptions extends RequestInit {
   token?: string

@@ -16,3 +16,4 @@ pytest-cov
 pytest-asyncio
 httpx
 python-socketio[asgi]
+slowapi
