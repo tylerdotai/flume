@@ -65,11 +65,11 @@ export default function Docs() {
             <ul className="space-y-2" style={{ color: '#666' }}>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">GET /boards</code> - List all boards</li>
               <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /boards</code> - Create a board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">GET /boards/{id}</code> - Get board details</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">PATCH /boards/{id}</code> - Update board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">DELETE /boards/{id}</code> - Delete board</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /boards/{id}/lists</code> - Create list</li>
-              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">POST /lists/{id}/cards</code> - Create card</li>
+              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">{"GET /boards/{id}"}</code> - Get board details</li>
+              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">{"PATCH /boards/{id}"}</code> - Update board</li>
+              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">{"DELETE /boards/{id}"}</code> - Delete board</li>
+              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">{"POST /boards/{id}/lists"}</code> - Create list</li>
+              <li><code className="text-sm bg-gray-100 px-2 py-1 rounded">{"POST /lists/{id}/cards"}</code> - Create card</li>
             </ul>
           </div>
         </section>
