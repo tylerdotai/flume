@@ -151,3 +151,52 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--accent);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
+/* Legacy class aliases for compatibility */
+.btn-ember {
+  background: var(--accent);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-ember:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.text-ember {
+  color: var(--accent);
+}
+
+.bg-ember {
+  background: var(--accent);
+}
+
+.text-ember-light {
+  color: var(--accent-hover);
+}
+
+.border-ember {
+  border-color: var(--accent);
+}
