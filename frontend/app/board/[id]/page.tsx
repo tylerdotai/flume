@@ -185,24 +185,64 @@ export default function BoardDetailPage() {
     const { active, over } = event
     setActiveCard(null)
     if (!over || !token) return
+    
     const activeId = active.id as number
-    let targetListId: number | null = null
-    if (lists.find(l => l.id === over.id)) targetListId = over.id as number
-    else { for (const listId in cards) { if (cards[listId].find(c => c.id === over.id)) { targetListId = Number(listId); break } } }
-    if (!targetListId) return
+    const overId = over.id as number
+    
+    // Find source list
     let sourceListId: number | null = null
-    for (const listId in cards) { if (cards[listId].find(c => c.id === activeId)) { sourceListId = Number(listId); break } }
-    if (!sourceListId || sourceListId === targetListId) return
+    let sourceIndex = -1
+    for (const listId in cards) {
+      const idx = cards[Number(listId)].findIndex(c => c.id === activeId)
+      if (idx !== -1) {
+        sourceListId = Number(listId)
+        sourceIndex = idx
+        break
+      }
+    }
+    
+    if (!sourceListId) return
+    
+    // Find target list - check if dropped on a list or a card
+    let targetListId: number | null = null
+    
+    // Check if dropped directly on a list
+    if (lists.find(l => l.id === overId)) {
+      targetListId = overId
+    } else {
+      // Check if dropped on a card - find which list that card belongs to
+      for (const listId in cards) {
+        if (cards[Number(listId)].find(c => c.id === overId)) {
+          targetListId = Number(listId)
+          break
+        }
+      }
+    }
+    
+    // If dropped on same list, don't do anything
+    if (!targetListId || sourceListId === targetListId) return
+    
     try {
+      // Update on server
       await updateCard(token, activeId, { list_id: targetListId })
+      
+      // Optimistic update
       const cardToMove = cards[sourceListId].find(c => c.id === activeId)
-      if (cardToMove) setCards(prev => {
-        const newState = { ...prev }
-        newState[sourceListId] = newState[sourceListId].filter(c => c.id !== activeId)
-        newState[targetListId] = [...(newState[targetListId] || []), { ...cardToMove, list_id: targetListId }]
-        return newState
-      })
-    } catch (err) { console.error(err) }
+      if (cardToMove) {
+        setCards(prev => {
+          const newState = { ...prev }
+          // Remove from source
+          newState[sourceListId] = newState[sourceListId].filter(c => c.id !== activeId)
+          // Add to target
+          newState[targetListId] = [...(newState[targetListId] || []), { ...cardToMove, list_id: targetListId }]
+          return newState
+        })
+      }
+    } catch (err) { 
+      console.error(err)
+      // Reload on error
+      if (token && boardId) loadLists()
+    }
   }
 
   // Card detail functions
@@ -385,7 +425,7 @@ export default function BoardDetailPage() {
                   type="text" 
                   value={editTitle} 
                   onChange={(e) => setEditTitle(e.target.value)} 
-                  className="text-lg sm:text-xl font-bold bg-transparent text-gray-800 border-b border-gray-200 focus:border-ember focus:outline-none flex-1 mr-2" 
+                  className="text-lg sm:text-xl font-bold bg-white text-gray-900 border-b border-gray-200 focus:border-ember focus:outline-none flex-1 mr-2 px-1" 
                 />
                 <button onClick={closeSidebar} className="text-gray-500 hover:text-gray-800">✕</button>
               </div>
@@ -433,7 +473,7 @@ export default function BoardDetailPage() {
                     value={editDescription} 
                     onChange={(e) => setEditDescription(e.target.value)} 
                     rows={12} 
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-ember focus:outline-none font-mono"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:border-ember focus:outline-none font-mono"
                     placeholder="## What&#10;-&#10;&#10;## Why&#10;-&#10;&#10;## How&#10;- &#10;&#10;## When&#10;- Start:&#10;- End:"
                   />
                 )}
