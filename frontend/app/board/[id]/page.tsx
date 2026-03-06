@@ -42,7 +42,7 @@ const TASK_TEMPLATE = `## What
 `
 
 export default function BoardDetailPage() {
-  const { user, token, loading: authLoading } = useAuth()
+  const { user, token, loading: authLoading, logout } = useAuth()
   const router = useRouter()
   const params = useParams()
   const boardId = Number(params.id)
