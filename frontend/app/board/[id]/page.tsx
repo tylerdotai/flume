@@ -1,6 +1,6 @@
-export const dynamicParams = true
-export const dynamic = 'force-dynamic'
 'use client'
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
