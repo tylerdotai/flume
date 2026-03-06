@@ -154,3 +154,29 @@ export const deleteList = (token: string, listId: number) =>
     method: 'DELETE',
     token,
   })
+
+// Password Reset
+export const forgotPassword = (email: string) =>
+  fetchApi<{ message: string }>('/api/v1/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+
+export const resetPassword = (token: string, newPassword: string) =>
+  fetchApi<{ message: string }>('/api/v1/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, new_password: newPassword }),
+  })
+
+// Email Verification
+export const verifyEmail = (token: string) =>
+  fetchApi<{ message: string }>('/api/v1/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  })
+
+export const resendVerification = (email: string) =>
+  fetchApi<{ message: string }>('/api/v1/auth/resend-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
