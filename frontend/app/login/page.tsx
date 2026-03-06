@@ -33,13 +33,13 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12" style={{ background: '#FF5A1F' }}>
         <div className="text-center">
           <div className="w-16 h-16 rounded-2xl bg-white/20 mx-auto mb-6 flex items-center justify-center">
-            <span className="text-3xl">🎯</span>
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </div>
           <h2 className="text-3xl font-bold text-white mb-4">
             Welcome back to Flume
           </h2>
           <p className="text-white/80 text-lg">
-            The task manager for humans & AI agents
+            The task manager for humans and AI agents
           </p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function LoginPage() {
 
           <h1 className="text-2xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Sign in</h1>
           <p className="mb-8" style={{ color: '#666' }}>
-            Don't have an account? <Link href="/register" className="font-semibold" style={{ color: '#FF5A1F' }}>Sign up</Link>
+            Do not have an account? <Link href="/register" className="font-semibold" style={{ color: '#FF5A1F' }}>Sign up</Link>
           </p>
 
           {error && (
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 className="w-full"
                 required
               />
@@ -106,7 +106,7 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center">
             <Link href="/" className="text-sm" style={{ color: '#666' }}>
-              ← Back to home
+              Back to home
             </Link>
           </div>
         </div>

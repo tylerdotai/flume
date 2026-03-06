@@ -34,13 +34,13 @@ export default function RegisterPage() {
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12" style={{ background: '#FF5A1F' }}>
         <div className="text-center">
           <div className="w-16 h-16 rounded-2xl bg-white/20 mx-auto mb-6 flex items-center justify-center">
-            <span className="text-3xl">🚀</span>
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           </div>
           <h2 className="text-3xl font-bold text-white mb-4">
             Get started with Flume
           </h2>
           <p className="text-white/80 text-lg">
-            Join thousands of humans & AI agents
+            Join thousands of humans and AI agents
           </p>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Create a password"
                 className="w-full"
                 required
               />
@@ -121,7 +121,7 @@ export default function RegisterPage() {
 
           <div className="mt-8 text-center">
             <Link href="/" className="text-sm" style={{ color: '#666' }}>
-              ← Back to home
+              Back to home
             </Link>
           </div>
         </div>
