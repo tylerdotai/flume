@@ -76,7 +76,6 @@ export default function BoardPage() {
         <div className="flex items-center gap-4">
           <Link href="/board" className="flex items-center gap-2">
             <img src="/flume-logo.jpg" alt="Flume" className="h-10 w-auto" />
-            <span className="text-xl font-bold hidden sm:block" style={{ color: '#1A1A1A' }}>flume</span>
           </Link>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
