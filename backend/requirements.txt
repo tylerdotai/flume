@@ -17,3 +17,5 @@ pytest-asyncio
 httpx
 python-socketio[asgi]
 slowapi
+psycopg2-binary
+alembic
