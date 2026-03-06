@@ -24,9 +24,8 @@ export default function Home() {
           <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
         </div>
         <div className="flex items-center gap-8">
-          <Link href="#" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>
-          <Link href="#" className="text-sm font-medium" style={{ color: '#666' }}>Pricing</Link>
-          <Link href="#" className="text-sm font-medium" style={{ color: '#666' }}>Docs</Link>
+          <Link href="/product" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>
+          <Link href="/docs" className="text-sm font-medium" style={{ color: '#666' }}>Docs</Link>
           <Link href="/login" className="text-sm font-medium" style={{ color: '#1A1A1A' }}>Login</Link>
           <Link 
             href="/register" 
@@ -178,7 +177,9 @@ export default function Home() {
             <div className="w-6 h-6 rounded-lg" style={{ background: '#FF5A1F' }}></div>
             <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
           </div>
-          <p className="text-sm" style={{ color: '#999' }}>© 2026 Flume. Built for humans and AI.</p>
+          <p className="text-sm" style={{ color: '#999' }}>
+            <a href="https://x.com/tylerdotai" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>© 2026 Flume</a>
+          </p>
         </div>
       </footer>
     </div>

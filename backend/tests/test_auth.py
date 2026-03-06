@@ -29,6 +29,14 @@ def test_user(db):
 
 def test_register_success():
     """Test user registration."""
+    # Clean up first
+    db = SessionLocal()
+    existing = db.query(User).filter(User.email == "newuser@example.com").first()
+    if existing:
+        db.delete(existing)
+        db.commit()
+    db.close()
+    
     response = client.post("/api/v1/auth/register", json={
         "email": "newuser@example.com",
         "username": "newuser",

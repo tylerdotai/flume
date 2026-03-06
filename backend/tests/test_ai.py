@@ -1,33 +1,39 @@
-"""Tests for AI API endpoints."""
+"""Tests for AI endpoints with API key."""
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db.session import SessionLocal
-from app.db.models import User, Board, BoardList, Card
+from app.db.models import User, APIKey
 from app.core.security import get_password_hash
+import secrets
 
 client = TestClient(app)
 
 
-def get_auth_token():
-    """Get auth token."""
+def create_user_with_api_key():
+    """Create a user and generate an API key."""
     db = SessionLocal()
-    existing = db.query(User).filter(User.email == "aitest@example.com").first()
-    if existing:
-        db.delete(existing)
-        db.commit()
-    db.close()
+    user = User(
+        email="aitest2@example.com",
+        username="aitest2",
+        hashed_password=get_password_hash("testpass123")
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     
-    client.post("/api/v1/auth/register", json={
-        "email": "aitest@example.com",
-        "username": "aitest",
-        "password": "testpass123"
-    })
-    response = client.post("/api/v1/auth/login", json={
-        "email": "aitest@example.com",
-        "password": "testpass123"
-    })
-    return response.json()["access_token"]
+    # Generate API key
+    api_key = APIKey(
+        name="Test Key",
+        key=f"flume_{secrets.token_urlsafe(32)}",
+        user_id=user.id
+    )
+    db.add(api_key)
+    db.commit()
+    db.refresh(api_key)
+    
+    db.close()
+    return user, api_key.key
 
 
 @pytest.fixture(autouse=True)
@@ -35,67 +41,28 @@ def cleanup():
     """Clean up after tests."""
     yield
     db = SessionLocal()
-    db.query(Card).delete()
-    db.query(BoardList).delete()
-    db.query(Board).delete()
-    user = db.query(User).filter(User.email == "aitest@example.com").first()
-    if user:
-        db.delete(user)
+    db.query(APIKey).delete()
+    db.query(User).filter(User.email == "aitest2@example.com").delete()
     db.commit()
     db.close()
 
 
-def test_ai_list_boards():
-    """Test AI list boards endpoint."""
-    token = get_auth_token()
-    
-    # Create a board
-    client.post(
-        "/api/v1/boards",
-        json={"name": "AI Test Board"},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    # List via AI endpoint
+def test_ai_boards_without_key():
+    """Test AI boards endpoint without API key."""
+    response = client.get("/api/v1/ai/boards")
+    assert response.status_code == 401
+
+
+def test_ai_boards_with_invalid_key():
+    """Test AI boards with invalid key."""
     response = client.get(
         "/api/v1/ai/boards",
-        headers={"X-API-Key": "fake-key"}  # This should fail without valid key
-    )
-    # Without valid API key, should get 401
-    assert response.status_code in [401, 403]
-
-
-def test_ai_get_board():
-    """Test AI get board endpoint."""
-    token = get_auth_token()
-    
-    # Create board
-    board_response = client.post(
-        "/api/v1/boards",
-        json={"name": "AI Board"},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    board_id = board_response.json()["id"]
-    
-    # Try without API key - should fail
-    response = client.get(
-        f"/api/v1/ai/boards/{board_id}",
-        headers={"X-API-Key": "invalid"}
-    )
-    assert response.status_code in [401, 403]
-
-
-def test_api_key_not_found():
-    """Test API key with invalid key."""
-    response = client.get(
-        "/api/v1/ai/boards",
-        headers={"X-API-Key": "flume_nonexistent"}
+        headers={"X-API-Key": "flume_invalid_key"}
     )
     assert response.status_code == 401
 
 
-def test_api_key_missing():
-    """Test API calls without API key."""
-    # Should require authentication
-    response = client.get("/api/v1/ai/boards")
+def test_ai_get_board_without_key():
+    """Test AI get board without key."""
+    response = client.get("/api/v1/ai/boards/1")
     assert response.status_code == 401

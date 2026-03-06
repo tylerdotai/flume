@@ -98,7 +98,7 @@ class CommentBase(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    card_id: int
+    card_id: Optional[int] = None  # Optional since it's in the URL path
 
 
 class CommentResponse(CommentBase):

@@ -477,7 +477,7 @@ def create_comment(
     comment = Comment(
         content=comment_data.content,
         card_id=card_id,
-        user_id=current_user.id,
+        author_id=current_user.id,
     )
     db.add(comment)
     db.commit()
