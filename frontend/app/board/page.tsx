@@ -44,7 +44,10 @@ export default function BoardPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!token || !newBoardName.trim()) return
+    if (!token || !newBoardName.trim()) {
+      alert('Please enter a board name')
+      return
+    }
     try {
       const board = await createBoard(token, { name: newBoardName.trim(), color: newBoardColor })
       setBoards([...boards, board])
