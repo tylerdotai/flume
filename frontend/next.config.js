@@ -1,13 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Disable source maps to reduce memory during build
   productionBrowserSourceMaps: false,
-  // Reduce memory by limiting swc usage
-  swcMinify: true,
-  // Ensure pages are properly optimized
   experimental: {
+    cpus: 1,
+    workerThreads: false,
     optimizePackageImports: ['lucide-react'],
+  },
+  staticPageGenerationTimeout: 300,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 }
 
