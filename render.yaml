@@ -6,7 +6,9 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: flume-db
+          property: connectionString
       - key: SECRET_KEY
         sync: false
       - key: BACKEND_CORS_ORIGINS
@@ -14,3 +16,7 @@ services:
       - key: PYTHON_VERSION
         value: "3.12"
     autoDeploy: true
+
+databases:
+  - name: flume-db
+    plan: free
