@@ -35,12 +35,6 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-white/20 mx-auto mb-6 flex items-center justify-center">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </div>
-
-            <div className="text-right">
-              <Link href="/forgot-password" className="text-sm" style={{ color: '#FF5A1F' }}>
-                Forgot password?
-              </Link>
-            </div>
           <h2 className="text-3xl font-bold text-white mb-4">
             Welcome back to Flume
           </h2>
@@ -54,10 +48,11 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8">
-            <div className="flex items-center gap-2">
-              <div className="h-14 w-auto" style={{ background: '#FF5A1F' }}></div>
-              
-            </div>
+            <Link href="/">
+              <div className="h-14 w-14 rounded-xl flex items-center justify-center" style={{ background: '#FF5A1F' }}>
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              </div>
+            </Link>
           </div>
 
           <h1 className="text-2xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Sign in</h1>
@@ -98,6 +93,12 @@ export default function LoginPage() {
                 className="w-full"
                 required
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Link href="/forgot-password" className="text-sm" style={{ color: '#FF5A1F' }}>
+                Forgot password?
+              </Link>
             </div>
 
             <button
