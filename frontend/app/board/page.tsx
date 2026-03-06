@@ -59,7 +59,10 @@ export default function BoardPage() {
     try {
       await deleteBoard(token, id)
       setBoards(boards.filter(b => b.id !== id))
-    } catch (err) { console.error(err) }
+    } catch (err: any) { 
+      console.error('Delete failed:', err)
+      alert(err?.message || 'Failed to delete board')
+    }
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>

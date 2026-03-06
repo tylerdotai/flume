@@ -145,7 +145,10 @@ export default function BoardDetailPage() {
         delete newState[listId]
         return newState
       })
-    } catch (err) { console.error(err) }
+    } catch (err: any) { 
+      console.error('Delete list failed:', err)
+      alert(err?.message || 'Failed to delete list')
+    }
   }
 
   const handleCreateCard = async (listId: number, e: React.FormEvent) => {
