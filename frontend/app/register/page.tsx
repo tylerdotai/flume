@@ -50,7 +50,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+              <div className="h-10 w-auto" style={{ background: '#FF5A1F' }}></div>
               <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
             </div>
           </div>

@@ -9,7 +9,7 @@ export default function Agent() {
       <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/flume-logo.jpg" alt="Flume" className="w-8 h-8 rounded-lg" />
+            <img src="/flume-logo.jpg" alt="Flume" className="h-10 w-auto" />
             <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
           </Link>
         </div>
@@ -163,7 +163,7 @@ task = requests.post(
       <footer className="border-t mt-20 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/flume-logo.jpg" alt="Flume" className="w-6 h-6 rounded-lg" />
+            <img src="/flume-logo.jpg" alt="Flume" className="h-6 w-auto" />
             <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
           </div>
           <p className="text-sm" style={{ color: '#999' }}>
