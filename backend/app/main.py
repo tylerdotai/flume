@@ -55,7 +55,7 @@ app.add_exception_handler(Exception, lambda r, e: None)  # Basic error handler
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS[0] if settings.BACKEND_CORS_ORIGINS else "*",
+    allow_origins=settings.cors_list[0] if settings.BACKEND_CORS_ORIGINS else "*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
