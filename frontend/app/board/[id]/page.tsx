@@ -9,6 +9,7 @@ import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor,
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableCard } from '@/components/sortable-card'
 import ReactMarkdown from 'react-markdown'
+import DOMPurify from 'dompurify'
 
 interface List { id: number; name: string; position: number }
 interface Card { id: number; title: string; description?: string; position: number; list_id: number; labels?: string; assignee_id?: number; due_date?: string; priority?: string }
@@ -404,8 +405,8 @@ export default function BoardDetailPage() {
                   </button>
                 </div>
                 {showMarkdownPreview ? (
-                  <div className="prose prose-invert prose-sm max-w-none bg-gray-50 p-3 rounded-lg text-gray-800">
-                    <ReactMarkdown>{editDescription}</ReactMarkdown>
+                  <div className="prose prose-sm max-w-none bg-gray-50 p-3 rounded-lg text-gray-800">
+                    <ReactMarkdown>{DOMPurify.sanitize(editDescription)}</ReactMarkdown>
                   </div>
                 ) : (
                   <textarea 

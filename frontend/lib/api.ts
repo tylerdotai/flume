@@ -33,6 +33,15 @@ export async function fetchApi<T>(
     headers,
   })
 
+  if (response.status === 401) {
+    // Token expired or invalid - redirect to login
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('flume_token')
+      window.location.href = '/login'
+    }
+    throw new Error('Session expired')
+  }
+  
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Request failed' }))
     throw new Error(error.detail || 'Request failed')
