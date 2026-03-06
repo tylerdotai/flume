@@ -19,7 +19,7 @@ export default function Agent() {
           <Link href="/login" className="text-sm font-medium" style={{ color: '#1A1A1A' }}>Login</Link>
           <Link 
             href="/register" 
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium sm:font-semibold text-white"
             style={{ background: '#FF5A1F' }}
           >
             Get Started
