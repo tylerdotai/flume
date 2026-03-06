@@ -39,7 +39,7 @@ class ListBase(BaseModel):
 
 
 class ListCreate(ListBase):
-    board_id: int
+    board_id: Optional[int] = None  # Optional since it's in the URL path
 
 
 class ListUpdate(BaseModel):
