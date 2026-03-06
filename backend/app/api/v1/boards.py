@@ -2,7 +2,7 @@
 import asyncio
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.v1.auth import get_current_user
@@ -29,16 +29,66 @@ from app.core.socketio import (
 )
 from app.db.models import User
 
-# Helper to safely run async tasks from sync context
-def safe_async_task(coro):
-    """Run async coroutine from sync context without breaking."""
-    try:
-        asyncio.create_task(coro)
-    except RuntimeError:
-        pass  # No running event loop - skip
-
-
 router = APIRouter(prefix="/api/v1", tags=["boards"])
+
+
+# ============= HELPERS =============
+
+
+def trigger_webhook(event: str, data: dict):
+    """Trigger webhook in background."""
+    try:
+        asyncio.run(trigger_event(event, data))
+    except Exception:
+        pass  # Skip on error
+
+
+def notify_list_created(board_id: int, list_data: dict):
+    """Notify list created."""
+    try:
+        asyncio.run(emit_list_created(board_id, list_data))
+    except Exception:
+        pass
+
+
+def notify_list_updated(board_id: int, list_data: dict):
+    """Notify list updated."""
+    try:
+        asyncio.run(emit_list_updated(board_id, list_data))
+    except Exception:
+        pass
+
+
+def notify_list_deleted(board_id: int, list_id: int):
+    """Notify list deleted."""
+    try:
+        asyncio.run(emit_list_deleted(board_id, list_id))
+    except Exception:
+        pass
+
+
+def notify_card_created(board_id: int, card_data: dict):
+    """Notify card created."""
+    try:
+        asyncio.run(emit_card_created(board_id, card_data))
+    except Exception:
+        pass
+
+
+def notify_card_updated(board_id: int, card_data: dict):
+    """Notify card updated."""
+    try:
+        asyncio.run(emit_card_updated(board_id, card_data))
+    except Exception:
+        pass
+
+
+def notify_card_deleted(board_id: int, card_id: int):
+    """Notify card deleted."""
+    try:
+        asyncio.run(emit_card_deleted(board_id, card_id))
+    except Exception:
+        pass
 
 
 # ============= BOARDS =============
@@ -56,6 +106,7 @@ def get_boards(
 @router.post("/boards", response_model=BoardResponse, status_code=status.HTTP_201_CREATED)
 def create_board(
     board_data: BoardCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -70,11 +121,7 @@ def create_board(
     db.commit()
     db.refresh(board)
     
-    # Trigger webhook (async, fire and forget) - wrap in try/except to prevent errors
-    try:
-        safe_async_task(trigger_event("board.created", {"id": board.id, "name": board.name}))
-    except RuntimeError:
-        pass  # No running event loop - skip webhook in sync context
+    background_tasks.add_task(trigger_webhook, "board.created", {"id": board.id, "name": board.name})
     
     return board
 
@@ -117,9 +164,12 @@ def update_board(
         board.description = board_data.description
     if board_data.color is not None:
         board.color = board_data.color
+    if board_data.is_public is not None:
+        board.is_public = board_data.is_public
 
     db.commit()
     db.refresh(board)
+
     return board
 
 
@@ -139,6 +189,7 @@ def delete_board(
 
     db.delete(board)
     db.commit()
+
     return None
 
 
@@ -156,7 +207,7 @@ def get_lists(
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
 
-    if board.owner_id != current_user.id and not board.is_public:
+    if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return db.query(BoardList).filter(BoardList.board_id == board_id).order_by(BoardList.position).all()
@@ -166,6 +217,7 @@ def get_lists(
 def create_list(
     board_id: int,
     list_data: ListCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -177,7 +229,6 @@ def create_list(
     if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    # Get max position
     max_pos = db.query(BoardList).filter(BoardList.board_id == board_id).count()
 
     board_list = BoardList(
@@ -188,13 +239,9 @@ def create_list(
     db.add(board_list)
     db.commit()
     db.refresh(board_list)
-    
-    # Emit real-time event
-    safe_async_task(emit_list_created(board_id, {
-        "id": board_list.id,
-        "name": board_list.name,
-    }))
-    
+
+    background_tasks.add_task(notify_list_created, board_id, {"id": board_list.id, "name": board_list.name})
+
     return board_list
 
 
@@ -202,6 +249,7 @@ def create_list(
 def update_list(
     list_id: int,
     list_data: ListUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -221,19 +269,16 @@ def update_list(
 
     db.commit()
     db.refresh(board_list)
-    
-    # Emit real-time event
-    safe_async_task(emit_list_updated(board_list.board_id, {
-        "id": board_list.id,
-        "name": board_list.name,
-    }))
-    
+
+    background_tasks.add_task(notify_list_updated, board_list.board_id, {"id": board_list.id, "name": board_list.name})
+
     return board_list
 
 
 @router.delete("/lists/{list_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_list(
     list_id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -246,12 +291,12 @@ def delete_list(
     if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    board_id = board_list.board_id
     db.delete(board_list)
     db.commit()
-    
-    # Emit real-time event
-    safe_async_task(emit_list_deleted(board.id, list_id))
-    
+
+    background_tasks.add_task(notify_list_deleted, board_id, list_id)
+
     return None
 
 
@@ -270,7 +315,7 @@ def get_cards(
         raise HTTPException(status_code=404, detail="List not found")
 
     board = db.query(Board).filter(Board.id == board_list.board_id).first()
-    if board.owner_id != current_user.id and not board.is_public:
+    if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return db.query(Card).filter(Card.list_id == list_id).order_by(Card.position).all()
@@ -280,6 +325,7 @@ def get_cards(
 def create_card(
     list_id: int,
     card_data: CardCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -292,27 +338,27 @@ def create_card(
     if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    # Get max position
     max_pos = db.query(Card).filter(Card.list_id == list_id).count()
 
     card = Card(
         title=card_data.title,
         description=card_data.description,
         position=card_data.position or max_pos,
+        labels=card_data.labels,
         list_id=list_id,
+        assignee_id=card_data.assignee_id,
+        priority=card_data.priority or "medium",
     )
     db.add(card)
     db.commit()
     db.refresh(card)
-    
-    # Emit real-time event
-    safe_async_task(emit_card_created(board_list.board_id, {
+
+    background_tasks.add_task(notify_card_created, board_list.board_id, {
         "id": card.id,
         "title": card.title,
-        "description": card.description,
-        "list_id": card.list_id,
-    }))
-    
+        "list_id": list_id,
+    })
+
     return card
 
 
@@ -320,6 +366,7 @@ def create_card(
 def update_card(
     card_id: int,
     card_data: CardUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -343,24 +390,28 @@ def update_card(
         card.list_id = card_data.list_id
     if card_data.labels is not None:
         card.labels = card_data.labels
+    if card_data.assignee_id is not None:
+        card.assignee_id = card_data.assignee_id
+    if card_data.due_date is not None:
+        card.due_date = card_data.due_date
+    if card_data.priority is not None:
+        card.priority = card_data.priority
 
     db.commit()
     db.refresh(card)
-    
-    # Emit real-time event
-    safe_async_task(emit_card_updated(board_list.board_id, {
+
+    background_tasks.add_task(notify_card_updated, board_list.board_id, {
         "id": card.id,
         "title": card.title,
-        "description": card.description,
-        "list_id": card.list_id,
-    }))
-    
+    })
+
     return card
 
 
 @router.delete("/cards/{card_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_card(
     card_id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -374,12 +425,12 @@ def delete_card(
     if board.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    board_id = board_list.board_id
     db.delete(card)
     db.commit()
-    
-    # Emit real-time event
-    safe_async_task(emit_card_deleted(board_list.board_id, card_id))
-    
+
+    background_tasks.add_task(notify_card_deleted, board_id, card_id)
+
     return None
 
 
@@ -396,8 +447,13 @@ def get_comments(
     card = db.query(Card).filter(Card.id == card_id).first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
-    return db.query(Comment).filter(Comment.card_id == card_id).order_by(Comment.created_at).all()
+
+    board_list = db.query(BoardList).filter(BoardList.id == card.list_id).first()
+    board = db.query(Board).filter(Board.id == board_list.board_id).first()
+    if board.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return card.comments
 
 
 @router.post("/cards/{card_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
@@ -407,36 +463,35 @@ def create_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Create a new comment on a card."""
+    """Add a comment to a card."""
     card = db.query(Card).filter(Card.id == card_id).first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
+
+    board_list = db.query(BoardList).filter(BoardList.id == card.list_id).first()
+    board = db.query(Board).filter(Board.id == board_list.board_id).first()
+    if board.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    from app.db.models import Comment
     comment = Comment(
         content=comment_data.content,
         card_id=card_id,
-        author_id=current_user.id,
+        user_id=current_user.id,
     )
     db.add(comment)
     db.commit()
     db.refresh(comment)
+
+    # Emit socket event
+    try:
+        asyncio.run(emit_comment_created(board.id, {
+            "id": comment.id,
+            "content": comment.content,
+            "card_id": card_id,
+            "user_id": current_user.id,
+        }))
+    except Exception:
+        pass
+
     return comment
-
-
-@router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_comment(
-    comment_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Delete a comment."""
-    comment = db.query(Comment).filter(Comment.id == comment_id).first()
-    if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
-    
-    if comment.author_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    db.delete(comment)
-    db.commit()
-    return None

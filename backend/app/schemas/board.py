@@ -20,6 +20,7 @@ class BoardUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     color: Optional[str] = None
+    is_public: Optional[bool] = None
 
 
 class BoardResponse(BoardBase):
@@ -67,7 +68,7 @@ class CardBase(BaseModel):
 
 
 class CardCreate(CardBase):
-    list_id: int
+    list_id: Optional[int] = None  # Optional since it's in the URL path
 
 
 class CardUpdate(BaseModel):
