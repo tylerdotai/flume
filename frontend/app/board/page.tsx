@@ -145,8 +145,7 @@ export default function BoardPage() {
       <footer className="border-t mt-auto pt-8 pb-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-10 w-auto" style={{ background: '#FF5A1F' }}></div>
-            <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
+            <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
           </div>
           <p className="text-sm" style={{ color: '#999' }}>
             <a href="https://github.com/tylerdotai/flume" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>Flume on GitHub</a>

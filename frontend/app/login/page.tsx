@@ -50,7 +50,7 @@ export default function LoginPage() {
           <div className="lg:hidden mb-8">
             <div className="flex items-center gap-2">
               <div className="h-14 w-auto" style={{ background: '#FF5A1F' }}></div>
-              <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+              
             </div>
           </div>
 
