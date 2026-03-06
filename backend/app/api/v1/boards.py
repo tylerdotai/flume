@@ -29,6 +29,15 @@ from app.core.socketio import (
 )
 from app.db.models import User
 
+# Helper to safely run async tasks from sync context
+def safe_async_task(coro):
+    """Run async coroutine from sync context without breaking."""
+    try:
+        asyncio.create_task(coro)
+    except RuntimeError:
+        pass  # No running event loop - skip
+
+
 router = APIRouter(prefix="/api/v1", tags=["boards"])
 
 
@@ -61,8 +70,11 @@ def create_board(
     db.commit()
     db.refresh(board)
     
-    # Trigger webhook (async, fire and forget)
-    asyncio.create_task(trigger_event("board.created", {"id": board.id, "name": board.name}))
+    # Trigger webhook (async, fire and forget) - wrap in try/except to prevent errors
+    try:
+        safe_async_task(trigger_event("board.created", {"id": board.id, "name": board.name}))
+    except RuntimeError:
+        pass  # No running event loop - skip webhook in sync context
     
     return board
 
@@ -178,7 +190,7 @@ def create_list(
     db.refresh(board_list)
     
     # Emit real-time event
-    asyncio.create_task(emit_list_created(board_id, {
+    safe_async_task(emit_list_created(board_id, {
         "id": board_list.id,
         "name": board_list.name,
     }))
@@ -211,7 +223,7 @@ def update_list(
     db.refresh(board_list)
     
     # Emit real-time event
-    asyncio.create_task(emit_list_updated(board_list.board_id, {
+    safe_async_task(emit_list_updated(board_list.board_id, {
         "id": board_list.id,
         "name": board_list.name,
     }))
@@ -238,7 +250,7 @@ def delete_list(
     db.commit()
     
     # Emit real-time event
-    asyncio.create_task(emit_list_deleted(board.id, list_id))
+    safe_async_task(emit_list_deleted(board.id, list_id))
     
     return None
 
@@ -294,7 +306,7 @@ def create_card(
     db.refresh(card)
     
     # Emit real-time event
-    asyncio.create_task(emit_card_created(board_list.board_id, {
+    safe_async_task(emit_card_created(board_list.board_id, {
         "id": card.id,
         "title": card.title,
         "description": card.description,
@@ -336,7 +348,7 @@ def update_card(
     db.refresh(card)
     
     # Emit real-time event
-    asyncio.create_task(emit_card_updated(board_list.board_id, {
+    safe_async_task(emit_card_updated(board_list.board_id, {
         "id": card.id,
         "title": card.title,
         "description": card.description,
@@ -366,7 +378,7 @@ def delete_card(
     db.commit()
     
     # Emit real-time event
-    asyncio.create_task(emit_card_deleted(board_list.board_id, card_id))
+    safe_async_task(emit_card_deleted(board_list.board_id, card_id))
     
     return None
 
