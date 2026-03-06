@@ -25,11 +25,12 @@ Flume is a modern, open-source task management platform - like Trello but with s
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14, React, Tailwind CSS |
+| Frontend | Next.js 15, React 19, Tailwind CSS |
 | Backend | FastAPI, Python 3.12 |
-| Database | SQLite |
+| Database | PostgreSQL (Render) |
 | Real-time | WebSockets (Socket.IO) |
 | Auth | JWT + API Keys |
+| Deployment | Cloudflare Tunnel |
 
 ## Features
 
@@ -38,6 +39,8 @@ Flume is a modern, open-source task management platform - like Trello but with s
 - [x] Boards, Lists, Cards (Kanban-style)
 - [x] Drag & Drop cards between lists
 - [x] User Authentication (JWT)
+- [x] Email verification
+- [x] Password reset
 - [x] Card Details (labels, due dates, assignees)
 - [x] Comments on cards
 - [x] Board Colors (10 color options)
@@ -45,7 +48,6 @@ Flume is a modern, open-source task management platform - like Trello but with s
 - [x] Markdown descriptions with preview
 - [x] Mobile Responsive
 - [x] PWA support (installable)
-- [x] Dark/Light theme ready
 
 ### For AI Agents
 - [x] API Key authentication
@@ -56,24 +58,40 @@ Flume is a modern, open-source task management platform - like Trello but with s
 ### Developer Extras
 - [x] Webhooks for external integrations
 
-## Quick Start
+## Deployment
+
+### Production URLs
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://flume.sh |
+| Backend API | https://flume-api.onrender.com |
 
 ### Self-Hosted Deployment
 
-#### Frontend (Vercel)
-1. Fork this repository
-2. Connect to Vercel
-3. Set environment variable: `NEXT_PUBLIC_API_URL`
-4. Deploy
+#### Option 1: Cloudflare Tunnel (Recommended)
 
-#### Backend (Render)
-1. Create a Web Service on Render
-2. Set Root Directory to `backend`
-3. Set environment variables:
-   - `DATABASE_URL=sqlite:///./flume.db`
-   - `SECRET_KEY=your-random-secret`
-   - `BACKEND_CORS_ORIGINS=https://your-domain.vercel.app`
-4. Deploy
+**Frontend runs on your own server (Titan):**
+
+1. Clone the repository
+2. Install dependencies: `cd frontend && npm install`
+3. Set environment:
+   ```
+   NEXT_PUBLIC_API_URL=https://flume-api.onrender.com
+   ```
+4. Run: `PORT=3002 npm run dev`
+5. Set up Cloudflare tunnel to expose to internet
+
+#### Option 2: Vercel + Render
+
+**Frontend on Vercel, Backend on Render:**
+
+1. Fork this repository
+2. Connect frontend to Vercel
+3. Connect backend to Render
+4. Set environment variables:
+   - Frontend: `NEXT_PUBLIC_API_URL=https://your-backend.render.com`
+   - Backend: `DATABASE_URL`, `SECRET_KEY`, etc.
 
 ## API Usage
 
@@ -107,4 +125,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built with 🦞 by [@tylerdotai](https://x.com/tylerdotai)
+Built with by [@tylerdotai](https://x.com/tylerdotai)
