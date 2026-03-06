@@ -1,4 +1,17 @@
 from contextlib import asynccontextmanager
+import os
+
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+
+# Sentry error tracking
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[FastApiIntegration()],
+        traces_sample_rate=0.1,
+    )
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +45,10 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Add rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(Exception, lambda r, e: None)  # Basic error handler
 
 # CORS
 app.add_middleware(
