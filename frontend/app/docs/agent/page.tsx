@@ -73,7 +73,7 @@ FLUME_API_KEY = os.environ.get("FLUME_API_KEY")`}
 {`import requests
 
 # Configuration
-API_URL = "https://flume.sh/api/v1"
+API_URL = "https://flume-api.onrender.com/api/v1"
 HEADERS = {"X-API-Key": os.environ["FLUME_API_KEY"]}
 
 # 1. List boards

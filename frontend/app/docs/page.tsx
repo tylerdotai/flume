@@ -92,7 +92,7 @@ Users need secure access to their accounts
           <div className="p-6 rounded-lg bg-white" style={{ border: '1px solid #E5E5E5' }}>
             <h3 className="font-semibold mb-4" style={{ color: '#1A1A1A' }}>Base URL</h3>
             <code className="block p-3 rounded bg-gray-100 text-sm" style={{ color: '#333' }}>
-              https://flume.sh/api/v1
+              https://flume-api.onrender.com/api/v1
             </code>
             
             <h3 className="font-semibold mt-6 mb-4" style={{ color: '#1A1A1A' }}>Authentication</h3>
