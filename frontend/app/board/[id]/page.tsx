@@ -351,7 +351,7 @@ export default function BoardDetailPage() {
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/board" className="flex items-center gap-2">
-              <div className="h-12 w-auto" style={{ background: '#FF5A1F' }}></div>
+              <div className="h-14 w-auto" style={{ background: '#FF5A1F' }}></div>
             </Link>
             <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800 text-sm">← Boards</button>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{board?.name || 'Board'}</h1>

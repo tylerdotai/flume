@@ -75,7 +75,7 @@ export default function BoardPage() {
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <Link href="/board" className="flex items-center gap-2">
-            <img src="/flume-logo.jpg" alt="Flume" className="h-12 w-auto" />
+            <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
           </Link>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -145,7 +145,7 @@ export default function BoardPage() {
       <footer className="border-t mt-auto pt-8 pb-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-auto" style={{ background: '#FF5A1F' }}></div>
+            <div className="h-10 w-auto" style={{ background: '#FF5A1F' }}></div>
             <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
           </div>
           <p className="text-sm" style={{ color: '#999' }}>
