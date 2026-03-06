@@ -72,17 +72,17 @@ export default function BoardPage() {
 
   return (
     <div className="min-h-screen p-8 flex flex-col">
-      <header className="flex justify-between items-center mb-8">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <Link href="/board" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
-            <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+            <span className="text-xl font-bold hidden sm:block" style={{ color: '#1A1A1A' }}>flume</span>
           </Link>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/webhooks" className="btn-ghost">Webhooks</Link>
-          <Link href="/api-keys" className="btn-ghost">API Keys</Link>
-          <button onClick={logout} className="btn-ghost">Sign out</button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Link href="/webhooks" className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">Webhooks</Link>
+          <Link href="/api-keys" className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">API Keys</Link>
+          <button onClick={logout} className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">Sign out</button>
         </div>
       </header>
 

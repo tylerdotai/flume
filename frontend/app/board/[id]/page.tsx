@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { getLists, getCards, createCard, createList, updateCard, deleteCard, deleteList, getComments, createComment, getBoard } from '@/lib/api'
 import { useSocket } from '@/lib/useSocket'
+import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -272,13 +273,23 @@ export default function BoardDetailPage() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen p-4 sm:p-6 overflow-x-auto">
-        <header className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800">← Back</button>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{board?.name || 'Board'}</h1>
-          <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-            {connected ? '● Live' : '○ Offline'}
-          </span>
+      <div className="min-h-screen p-4 sm:p-6 overflow-x-auto flex flex-col">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/board" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+            </Link>
+            <button onClick={() => router.push('/board')} className="text-gray-400 hover:text-gray-800 text-sm">← Boards</button>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{board?.name || 'Board'}</h1>
+            <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {connected ? '● Live' : '○ Offline'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Link href="/webhooks" className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">Webhooks</Link>
+            <Link href="/api-keys" className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">API Keys</Link>
+            <button onClick={logout} className="btn-ghost flex-1 sm:flex-none text-center py-2 px-3 sm:px-4 text-sm">Sign out</button>
+          </div>
         </header>
         
         <div className="flex gap-4 items-start">
