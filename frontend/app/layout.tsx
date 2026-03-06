@@ -10,10 +10,12 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Flume - Your Command Center',
-  description: 'Build, organize, ship.',
+  title: 'Flume - Task Manager',
+  description: 'Task manager for humans and AI agents',
+  manifest: '/manifest.json',
   icons: {
     icon: '/flume-logo.jpg',
+    apple: '/flume-logo.jpg',
   },
 }
 
@@ -24,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="wave-bg min-h-screen">
+      <body className="min-h-screen">
         <AuthProvider>
           {children}
         </AuthProvider>

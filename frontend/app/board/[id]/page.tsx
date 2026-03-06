@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { getLists, getCards, createCard, createList, updateCard, deleteCard, getComments, createComment } from '@/lib/api'
 import { useSocket } from '@/lib/useSocket'
