@@ -1,7 +1,5 @@
-"""Email utility for sending transactional emails."""
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+"""Email utility for sending transactional emails via Resend API."""
+import resend
 from datetime import datetime, timedelta
 import secrets
 
@@ -16,29 +14,29 @@ def generate_token() -> tuple[str, datetime]:
 
 
 def send_email(to: str, subject: str, body: str, html: str = None) -> bool:
-    """Send an email. Returns True if successful."""
-    if not settings.email_enabled:
-        print(f"[EMAIL] Would send to {to}: {subject}")
+    """Send an email via Resend API. Returns True if successful."""
+    if not settings.RESEND_API_KEY:
+        print(f"[EMAIL] No RESEND_API_KEY configured. Would send to {to}: {subject}")
         return False
     
     try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = settings.SMTP_FROM
-        msg['To'] = to
-        msg['Subject'] = subject
+        resend.api_key = settings.RESEND_API_KEY
         
-        msg.attach(MIMEText(body, 'plain'))
+        params = {
+            "from": settings.SMTP_FROM or "Flume <onboarding@resend.dev>",
+            "to": to,
+            "subject": subject,
+            "text": body,
+        }
+        
         if html:
-            msg.attach(MIMEText(html, 'html'))
+            params["html"] = html
         
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.sendmail(settings.SMTP_FROM, to, msg.as_string())
-        
+        response = resend.Emails.send(params)
+        print(f"[EMAIL] Sent to {to}: {response}")
         return True
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"[EMAIL] Failed to send: {e}")
         return False
 
 
