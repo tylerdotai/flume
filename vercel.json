@@ -3,6 +3,11 @@
   "installCommand": "cd frontend && rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
   "outputDirectory": "frontend/.next",
   "framework": "nextjs",
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://flume-api.onrender.com"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
