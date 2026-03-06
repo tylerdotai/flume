@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense } from 'react'
-import ResetPasswordForm from './reset-password-form'
+import VerifyEmailForm from './verify-email-form'
 
 function Loading() {
   return (
@@ -11,10 +11,10 @@ function Loading() {
   )
 }
 
-export default function ResetPasswordPage() {
+export default function VerifyEmailPage() {
   return (
     <Suspense fallback={<Loading />}>
-      <ResetPasswordForm />
+      <VerifyEmailForm />
     </Suspense>
   )
 }

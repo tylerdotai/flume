@@ -37,7 +37,7 @@ export default function LoginPage() {
           </div>
 
             <div className="text-right">
-              <Link href="/forgot-password" className="text-sm" style={{ color: #FF5A1F }}>
+              <Link href="/forgot-password" className="text-sm" style={{ color: '#FF5A1F' }}>
                 Forgot password?
               </Link>
             </div>
