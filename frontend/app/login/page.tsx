@@ -9,75 +9,108 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     try {
       await login(email, password)
       router.push('/board')
     } catch (err: any) {
       setError(err.message || 'Login failed')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="card p-6 sm:p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-ember to-ember-dark flex items-center justify-center mx-auto mb-3 sm:mb-4">
-            <svg viewBox="0 0 100 100" className="w-10 h-10 text-black" fill="none">
-              <path d="M10 60 Q 25 40, 40 60 T 70 60 T 90 50" stroke="currentColor" strokeWidth="8" strokeLinecap="round" fill="none" />
-              <path d="M15 70 Q 30 50, 45 70 T 75 70 T 95 60" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.7" />
-            </svg>
+    <div className="min-h-screen flex" style={{ background: '#F9F7F2' }}>
+      {/* Left side - branding */}
+      <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12" style={{ background: '#FF5A1F' }}>
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-2xl bg-white/20 mx-auto mb-6 flex items-center justify-center">
+            <span className="text-3xl">🎯</span>
           </div>
-          <h1 className="text-2xl font-bold text-cream">Welcome back</h1>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Welcome back to Flume
+          </h2>
+          <p className="text-white/80 text-lg">
+            The task manager for humans & AI agents
+          </p>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Right side - form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden mb-8">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+              <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Sign in</h1>
+          <p className="mb-8" style={{ color: '#666' }}>
+            Don't have an account? <Link href="/register" className="font-semibold" style={{ color: '#FF5A1F' }}>Sign up</Link>
+          </p>
+
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500 text-red-400 text-sm">
+            <div className="mb-6 p-4 rounded-lg" style={{ background: '#FEF2F2', color: '#DC2626' }}>
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none"
-              required
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-lg font-semibold text-white transition-all"
+              style={{ background: '#FF5A1F' }}
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <Link href="/" className="text-sm" style={{ color: '#666' }}>
+              ← Back to home
+            </Link>
           </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-cream focus:border-ember focus:outline-none"
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn-ember w-full py-3">
-            Sign in
-          </button>
-        </form>
-
-        <p className="text-center text-gray-500 mt-6">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-ember hover:underline">
-            Sign up
-          </Link>
-        </p>
+        </div>
       </div>
-    </main>
+    </div>
   )
 }
