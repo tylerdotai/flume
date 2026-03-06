@@ -46,17 +46,23 @@ def get_current_user_or_api_key(
     """Get current user from either JWT or API key."""
     # First try JWT
     if token:
-        user_id = decode_token(token)
-        if user_id:
-            user = db.query(User).filter(User.id == user_id).first()
-            if user:
-                return user
+        try:
+            user_id = decode_token(token)
+            if user_id:
+                user = db.query(User).filter(User.id == user_id).first()
+                if user:
+                    return user
+        except Exception as e:
+            print(f"JWT decode error: {e}")
     
     # Then try API key
     if api_key:
-        key_record = db.query(APIKey).filter(APIKey.key == api_key, APIKey.is_active == True).first()
-        if key_record:
-            return key_record.user
+        try:
+            key_record = db.query(APIKey).filter(APIKey.key == api_key, APIKey.is_active == True).first()
+            if key_record:
+                return key_record.user
+        except Exception as e:
+            print(f"API key lookup error: {e}")
     
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
