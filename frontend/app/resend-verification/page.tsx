@@ -17,9 +17,9 @@ export default function ResendVerificationPage() {
     setLoading(true)
     try {
       const result = await resendVerification(email)
-      setMessage(result.message)
+      setMessage(String(result.message))
     } catch (err: any) {
-      setError(err.message || 'Failed to resend verification email')
+      setError(err.message || err.detail || 'Failed to resend verification email')
     } finally {
       setLoading(false)
     }

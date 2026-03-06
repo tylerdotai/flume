@@ -49,7 +49,7 @@ export default function ResetPasswordForm() {
         window.location.href = '/login'
       }, 2000)
     } catch (err: any) {
-      setError(err.message || 'Failed to reset password')
+      setError(err.message || err.detail || 'Failed to reset password')
     } finally {
       setLoading(false)
     }

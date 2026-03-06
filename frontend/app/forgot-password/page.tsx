@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
       const result = await forgotPassword(email)
       setMessage(result.message)
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email')
+      setError(err.message || err.detail || 'Failed to send reset email')
     } finally {
       setLoading(false)
     }
