@@ -20,8 +20,12 @@ export default function Home() {
       {/* Navbar */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
-          <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+          <Link href="/">
+            <img src="/flume-logo.jpg" alt="Flume" className="w-8 h-8 rounded-lg" />
+          </Link>
+          <Link href="/">
+            <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
+          </Link>
         </div>
         <div className="flex items-center gap-8">
           <Link href="/product" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>

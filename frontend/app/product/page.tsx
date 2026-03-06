@@ -9,13 +9,14 @@ export default function Product() {
       <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg" style={{ background: '#FF5A1F' }}></div>
+            <img src="/flume-logo.jpg" alt="Flume" className="w-8 h-8 rounded-lg" />
             <span className="text-xl font-bold" style={{ color: '#1A1A1A' }}>flume</span>
           </Link>
         </div>
         <div className="flex items-center gap-8">
           <Link href="/product" className="text-sm font-medium" style={{ color: '#FF5A1F' }}>Product</Link>
           <Link href="/docs" className="text-sm font-medium" style={{ color: '#666' }}>Docs</Link>
+          <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#666' }}>Agent</Link>
           <Link href="/login" className="text-sm font-medium" style={{ color: '#1A1A1A' }}>Login</Link>
           <Link 
             href="/register" 
