@@ -178,7 +178,7 @@ export default function Home() {
             <span className="font-semibold" style={{ color: '#1A1A1A' }}>flume</span>
           </div>
           <p className="text-sm" style={{ color: '#999' }}>
-            <a href="https://x.com/tylerdotai" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>© 2026 Flume</a>
+            <a href="https://github.com/tylerdotai/flume" target="_blank" rel="noopener noreferrer" style={{ color: '#999' }}>Flume on GitHub</a>
           </p>
         </div>
       </footer>
