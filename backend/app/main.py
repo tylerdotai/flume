@@ -1,17 +1,19 @@
 from contextlib import asynccontextmanager
 import os
 
-import sentry_sdk
-from sentry_sdk.integrations.fastapi import FastApiIntegration
-
-# Sentry error tracking
-SENTRY_DSN = os.getenv("SENTRY_DSN")
-if SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[FastApiIntegration()],
-        traces_sample_rate=0.1,
-    )
+# Sentry error tracking (optional)
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    SENTRY_DSN = os.getenv("SENTRY_DSN")
+    if SENTRY_DSN:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[FastApiIntegration()],
+            traces_sample_rate=0.1,
+        )
+except ImportError:
+    sentry_sdk = None
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
