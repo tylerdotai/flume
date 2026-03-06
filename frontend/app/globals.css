@@ -200,3 +200,4 @@ input:focus, textarea:focus, select:focus {
 .border-ember {
   border-color: var(--accent);
 }
+.text-cream { color: var(--text-primary); }

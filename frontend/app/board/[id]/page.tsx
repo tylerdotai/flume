@@ -6,7 +6,7 @@ import { getLists, getCards, createCard, createList, updateCard, deleteCard, del
 import { useSocket } from '@/lib/useSocket'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableCard } from '@/components/sortable-card'
 import ReactMarkdown from 'react-markdown'
@@ -184,18 +184,24 @@ export default function BoardDetailPage() {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     setActiveCard(null)
+    
     if (!over || !token) return
     
     const activeId = active.id as number
     const overId = over.id as number
     
-    // Find source list
+    // If dropped on same position, do nothing
+    if (activeId === overId) return
+    
+    // Find source list and card
     let sourceListId: number | null = null
     let sourceIndex = -1
-    for (const listId in cards) {
-      const idx = cards[Number(listId)].findIndex(c => c.id === activeId)
+    
+    for (const listId of lists) {
+      const cardList = cards[listId.id] || []
+      const idx = cardList.findIndex(c => c.id === activeId)
       if (idx !== -1) {
-        sourceListId = Number(listId)
+        sourceListId = listId.id
         sourceIndex = idx
         break
       }
@@ -203,43 +209,71 @@ export default function BoardDetailPage() {
     
     if (!sourceListId) return
     
-    // Find target list - check if dropped on a list or a card
+    // Find target list and position
     let targetListId: number | null = null
+    let targetIndex = -1
     
-    // Check if dropped directly on a list
-    if (lists.find(l => l.id === overId)) {
-      targetListId = overId
+    // Check if dropped on a list container
+    const overList = lists.find(l => l.id === overId)
+    if (overList) {
+      targetListId = overList.id
+      targetIndex = (cards[targetListId] || []).length
     } else {
-      // Check if dropped on a card - find which list that card belongs to
-      for (const listId in cards) {
-        if (cards[Number(listId)].find(c => c.id === overId)) {
-          targetListId = Number(listId)
+      // Dropped on a card - find which list and position
+      for (const listId of lists) {
+        const cardList = cards[listId.id] || []
+        const idx = cardList.findIndex(c => c.id === overId)
+        if (idx !== -1) {
+          targetListId = listId.id
+          targetIndex = idx
           break
         }
       }
     }
     
-    // If dropped on same list, don't do anything
-    if (!targetListId || sourceListId === targetListId) return
+    if (!targetListId) return
     
+    // Get the card being moved
+    const cardToMove = cards[sourceListId]?.find(c => c.id === activeId)
+    if (!cardToMove) return
+    
+    // If moving within same list (reordering)
+    if (sourceListId === targetListId) {
+      const currentList = [...(cards[sourceListId] || [])]
+      currentList.splice(sourceIndex, 1)
+      currentList.splice(targetIndex, 0, cardToMove)
+      
+      // Update positions
+      setCards(prev => ({
+        ...prev,
+        [sourceListId]: currentList
+      }))
+      
+      // Optionally save new order to backend
+      // await updateCardOrder(token, sourceListId, currentList.map(c => c.id))
+      return
+    }
+    
+    // Moving to different list
     try {
-      // Update on server
-      await updateCard(token, activeId, { list_id: targetListId })
+      await updateCard(token, activeId, { 
+        list_id: targetListId,
+        position: targetIndex 
+      })
       
       // Optimistic update
-      const cardToMove = cards[sourceListId].find(c => c.id === activeId)
-      if (cardToMove) {
-        setCards(prev => {
-          const newState = { ...prev }
-          // Remove from source
-          newState[sourceListId] = newState[sourceListId].filter(c => c.id !== activeId)
-          // Add to target
-          newState[targetListId] = [...(newState[targetListId] || []), { ...cardToMove, list_id: targetListId }]
-          return newState
-        })
-      }
-    } catch (err) { 
-      console.error(err)
+      setCards(prev => {
+        const newState = { ...prev }
+        // Remove from source
+        newState[sourceListId] = (newState[sourceListId] || []).filter(c => c.id !== activeId)
+        // Add to target at position
+        const targetList = [...(newState[targetListId] || [])]
+        targetList.splice(targetIndex, 0, { ...cardToMove, list_id: targetListId })
+        newState[targetListId] = targetList
+        return newState
+      })
+    } catch (err) {
+      console.error('Drag failed:', err)
       // Reload on error
       if (token && boardId) loadLists()
     }
@@ -312,7 +346,7 @@ export default function BoardDetailPage() {
   if (authLoading) return <div className="min-h-screen flex items-center justify-center"><div className="text-accent">Loading...</div></div>
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen p-4 sm:p-6 overflow-x-auto flex flex-col">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 sm:gap-4">

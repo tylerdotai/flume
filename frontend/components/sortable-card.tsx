@@ -40,7 +40,7 @@ export function SortableCard({ id, title, description, priority = 'medium' }: So
           style={{ backgroundColor: PRIORITY_COLORS[priority] || PRIORITY_COLORS.medium }}
         />
       </div>
-      <div className="text-cream font-medium">{title}</div>
+      <div className="text-gray-900 font-medium">{title}</div>
       {description && (
         <div className="text-gray-500 text-sm mt-1 line-clamp-2">{description.replace(/## What/g, '').replace(/## Why/g, '').substring(0, 50)}</div>
       )}
