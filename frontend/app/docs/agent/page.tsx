@@ -9,10 +9,10 @@ export default function Agent() {
       <nav className="flex items-center justify-between px-6 py-4 sticky top-0 z-50 w-full" style={{ background: '#F9F7F2', borderBottom: '1px solid #E5E5E5' }}>
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
+            <img src="/flume-logo.jpg" alt="Flume" className="h-10 sm:h-14 w-auto" />
           </Link>
         </div>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto">
           <Link href="/product" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>
           <Link href="/docs" className="text-sm font-medium" style={{ color: '#666' }}>Docs</Link>
           <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#FF5A1F' }}>Agent</Link>

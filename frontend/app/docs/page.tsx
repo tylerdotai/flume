@@ -9,15 +9,14 @@ export default function Docs() {
       <nav className="flex items-center justify-between px-6 py-4 sticky top-0 z-50 w-full" style={{ background: '#F9F7F2', borderBottom: '1px solid #E5E5E5' }}>
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/flume-logo.jpg" alt="Flume" className="h-14 w-auto" />
+            <img src="/flume-logo.jpg" alt="Flume" className="h-10 sm:h-14 w-auto" />
           </Link>
         </div>
-        <div className="flex items-center gap-8">
-          <Link href="/product" className="text-sm font-medium" style={{ color: '#666' }}>Product</Link>
-          <Link href="/docs" className="text-sm font-medium" style={{ color: '#FF5A1F' }}>Docs</Link>
-          <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#666' }}>Agent</Link>
-          <Link href="/docs/agent" className="text-sm font-medium" style={{ color: '#666' }}>Agent</Link>
-          <Link href="/login" className="text-sm font-medium" style={{ color: '#1A1A1A' }}>Login</Link>
+        <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto">
+          <Link href="/product" className="text-sm font-medium whitespace-nowrap" style={{ color: '#666' }}>Product</Link>
+          <Link href="/docs" className="text-sm font-medium whitespace-nowrap" style={{ color: '#FF5A1F' }}>Docs</Link>
+          <Link href="/docs/agent" className="text-sm font-medium whitespace-nowrap" style={{ color: '#666' }}>Agent</Link>
+          <Link href="/login" className="text-sm font-medium whitespace-nowrap" style={{ color: '#1A1A1A' }}>Login</Link>
           <Link 
             href="/register" 
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
