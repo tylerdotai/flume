@@ -67,24 +67,13 @@ Flume is a modern, open-source task management platform - like Trello but with s
 | Frontend | https://flume.sh |
 | Backend API | https://flume-api.onrender.com |
 
-### Self-Hosted Deployment
+### Quick Deploy
 
-#### Option 1: Vercel (Recommended)
+1. **Frontend → Vercel:** Connect GitHub repo `/frontend` folder
+2. **Backend → Render:** Connect GitHub repo `/backend` folder
+3. **Set env vars:** `NEXT_PUBLIC_API_URL` on Vercel
 
-**Frontend runs on your own server (Titan):**
-
-1. Clone the repository
-2. Install dependencies: `cd frontend && npm install`
-3. Set environment:
-   ```
-   NEXT_PUBLIC_API_URL=https://flume-api.onrender.com
-   ```
-4. Run: `PORT=3002 npm run dev`
-5. Set up Cloudflare tunnel to expose to internet
-
-#### Option 2: Self-Hosted (Titan)
-
-**Frontend on Vercel, Backend on Render:**
+### Self-Hosted
 
 1. Fork this repository
 2. Connect frontend to Vercel
