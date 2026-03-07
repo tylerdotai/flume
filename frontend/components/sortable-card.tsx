@@ -25,6 +25,22 @@ export function SortableCard({ id, title, description, priority = 'medium' }: So
     opacity: isDragging ? 0.5 : 1,
   }
 
+  // Clean description preview - remove markdown headers and show first meaningful line
+  const getPreview = (desc?: string) => {
+    if (!desc) return null
+    // Remove ## headers and get first non-empty line
+    const lines = desc
+      .replace(/^##\s+\w+\s*$/gm, '')  // Remove ## What, ## Why, etc.
+      .replace(/^\*\*.*?\*\*/gm, '')     // Remove **bold** markers
+      .replace(/^[-*]\s+/gm, '')          // Remove list markers
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 0)
+    return lines[0] || null
+  }
+
+  const preview = getPreview(description)
+
   return (
     <div
       ref={setNodeRef}
@@ -41,8 +57,11 @@ export function SortableCard({ id, title, description, priority = 'medium' }: So
         />
       </div>
       <div className="text-gray-900 font-medium">{title}</div>
+      {preview && (
+        <div className="text-gray-500 text-sm mt-1 line-clamp-2">{preview}</div>
+      )}
       {description && (
-        <div className="text-gray-500 text-sm mt-1 line-clamp-2">{description.replace(/## What/g, '').replace(/## Why/g, '').substring(0, 50)}</div>
+        <div className="text-xs text-gray-400 mt-2">Click to view details →</div>
       )}
     </div>
   )

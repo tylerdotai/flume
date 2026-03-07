@@ -29,16 +29,16 @@ const PRIORITIES = [
   { name: 'Low', color: '#22C55E', value: 'low' },
 ]
 
-const TASK_TEMPLATE = `## What
+const TASK_TEMPLATE = `**What
 -
 
-## Why
+**Why
 -
 
-## How
+**How
 - 
 
-## When
+**When
 - Start: 
 - End:
 `
@@ -510,7 +510,7 @@ export default function BoardDetailPage() {
                     onChange={(e) => setEditDescription(e.target.value)} 
                     rows={12} 
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:border-ember focus:outline-none font-mono"
-                    placeholder="## What&#10;-&#10;&#10;## Why&#10;-&#10;&#10;## How&#10;- &#10;&#10;## When&#10;- Start:&#10;- End:"
+                    placeholder="**What&#10;-&#10;&#10;**Why&#10;-&#10;&#10;**How&#10;- &#10;&#10;**When&#10;- Start:&#10;- End:"
                   />
                 )}
               </div>
