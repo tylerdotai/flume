@@ -121,3 +121,27 @@ def test_me_authenticated(test_user):
     data = response.json()
     assert data["email"] == "test@example.com"
     assert data["username"] == "testuser"
+
+
+def test_forgot_password():
+    """Test forgot password."""
+    response = client.post("/api/v1/auth/forgot-password", json={
+        "email": "testuser@test.com"
+    })
+    assert response.status_code == 200
+
+
+def test_forgot_password_nonexistent():
+    """Test forgot password with nonexistent user."""
+    response = client.post("/api/v1/auth/forgot-password", json={
+        "email": "nonexistent@test.com"
+    })
+    assert response.status_code == 200  # Don't reveal user exists
+
+
+def test_resend_verification():
+    """Test resend verification email."""
+    response = client.post("/api/v1/auth/resend-verification", json={
+        "email": "testuser@test.com"
+    })
+    assert response.status_code == 200
