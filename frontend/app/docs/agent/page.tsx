@@ -99,18 +99,18 @@ task = requests.post(
     f"{API_URL}/lists/{todo_list['id']}/cards",
     json={
         "title": "Research AI agents",
-        "description": """## What
+        "description": """**What**
 Research best practices for AI task management
 
-## Why
+**Why**
 To build better workflows for the human
 
-## How
+**How**
 - Search for existing solutions
 - Compare approaches
 - Document findings
 
-## When
+**When**
 - Start: Today
 - End: This week"""
     },
