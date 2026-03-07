@@ -387,6 +387,7 @@ export default function BoardDetailPage() {
                         title={card.title} 
                         description={card.description}
                         priority={card.priority}
+                        onClick={() => openCardDetail(card)}
                       />
                     </div>
                   ))}
