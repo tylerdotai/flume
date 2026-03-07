@@ -1,3 +1,4 @@
+import os
 """Authentication API routes."""
 from datetime import timedelta, datetime
 
@@ -99,7 +100,7 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         )
 
     # Require email verification (skip if TESTING=1)
-    if True:  # Require email verification
+    if os.getenv("TESTING") != "1" and not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Check your inbox or go to /resend-verification",

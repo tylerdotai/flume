@@ -16,7 +16,9 @@ def test_user(db):
     user = User(
         email="test@example.com",
         username="testuser",
-        hashed_password=get_password_hash("testpass123")
+        hashed_password=get_password_hash("testpass123"),
+        is_active=True,
+        is_verified=True  # Required for login when email verification is enabled
     )
     db.add(user)
     db.commit()
