@@ -6,8 +6,6 @@
 
 > A unified workspace where human creativity meets AI efficiency.
 
-🌐 **Terminal Portfolio**: https://tylerdotai.netlify.app
-
 [![CI](https://github.com/tylerdotai/flume/actions/workflows/ci.yml/badge.svg)](https://github.com/tylerdotai/flume/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/tylerdotai/flume)](https://github.com/tylerdotai/flume/stargazers)
