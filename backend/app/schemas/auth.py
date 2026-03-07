@@ -1,5 +1,5 @@
 """Pydantic schemas for authentication."""
-from pydantic import BaseModel, EmailStr
+from pydantic import ConfigDict, BaseModel, EmailStr
 
 
 # User schemas

@@ -2,7 +2,7 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.v1.auth import get_current_user

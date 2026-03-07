@@ -1,6 +1,6 @@
 """Email utility for sending transactional emails via Resend API."""
 import resend
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import secrets
 
 from app.core.config import settings
@@ -9,7 +9,7 @@ from app.core.config import settings
 def generate_token() -> tuple[str, datetime]:
     """Generate a secure token and expiration (24 hours)."""
     token = secrets.token_urlsafe(32)
-    expires = datetime.utcnow() + timedelta(hours=24)
+    expires = datetime.now(timezone.utc) + timedelta(hours=24)
     return token, expires
 
 

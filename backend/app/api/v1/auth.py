@@ -153,7 +153,7 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
             detail="Invalid or expired token",
         )
     
-    if user.password_reset_expires and user.password_reset_expires < datetime.utcnow():
+    if user.password_reset_expires and user.password_reset_expires < datetime.now(timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Token expired",

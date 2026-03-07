@@ -3,6 +3,7 @@ import os
 import json
 from typing import Union, List
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from functools import lru_cache
 
 
@@ -50,9 +51,10 @@ class Settings(BaseSettings):
         """Check if email is configured."""
         return bool(self.RESEND_API_KEY or (self.SMTP_HOST and self.SMTP_USER))
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+    )
 
 
 @lru_cache()
