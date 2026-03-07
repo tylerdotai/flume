@@ -36,7 +36,10 @@ def decode_token(token: str) -> Optional[int]:
     """Decode JWT token and return user ID."""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: int = payload.get("sub")
-        return user_id if user_id else None
-    except JWTError:
+        sub = payload.get("sub")
+        if sub is None:
+            return None
+        # JWT "sub" is typically a string, convert to int
+        return int(sub) if isinstance(sub, str) else sub
+    except (JWTError, ValueError):
         return None
