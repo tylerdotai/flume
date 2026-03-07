@@ -30,7 +30,7 @@ Flume is a modern, open-source task management platform - like Trello but with s
 | Database | PostgreSQL (Render) |
 | Real-time | WebSockets (Socket.IO) |
 | Auth | JWT + API Keys |
-| Deployment | Cloudflare Tunnel |
+| Deployment | Vercel |
 
 ## Features
 
@@ -69,7 +69,7 @@ Flume is a modern, open-source task management platform - like Trello but with s
 
 ### Self-Hosted Deployment
 
-#### Option 1: Cloudflare Tunnel (Recommended)
+#### Option 1: Vercel (Recommended)
 
 **Frontend runs on your own server (Titan):**
 
@@ -82,7 +82,7 @@ Flume is a modern, open-source task management platform - like Trello but with s
 4. Run: `PORT=3002 npm run dev`
 5. Set up Cloudflare tunnel to expose to internet
 
-#### Option 2: Vercel + Render
+#### Option 2: Self-Hosted (Titan)
 
 **Frontend on Vercel, Backend on Render:**
 
